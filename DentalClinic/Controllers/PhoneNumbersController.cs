@@ -11,12 +11,33 @@ namespace DentalClinic.Controllers
     [ApiController]
     public class PhoneNumbersController : ControllerBase
     {
-        private readonly ClinicContext _context;
+        private readonly ClinicContext context;
 
-        public PhoneNumbersController(ClinicContext context)
+        public PhoneNumbersController(ClinicContext _context)
         {
-            _context = context;
+            context = _context;
         }
+
+        [HttpGet]
+        public IActionResult GetAllPhoneNumbers()
+        {
+            var phoneNumbers = context.PhoneNumbers
+                                      .Include(p => p.Branch) 
+                                      .Select(p => new
+                                      {
+                                          Phonenumber = p.Phonenumber,
+                                          BranchName = p.Branch.Name 
+                                      })
+                                      .ToList(); 
+
+            if (phoneNumbers == null || !phoneNumbers.Any())
+            {
+                return NotFound("لا توجد أرقام هاتف");
+            }
+            return Ok(phoneNumbers);
+        }
+
+
 
 
 
