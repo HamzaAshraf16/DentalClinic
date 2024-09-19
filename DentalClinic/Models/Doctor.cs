@@ -36,6 +36,12 @@ namespace DentalClinic.Models
                 _phoneNumber = value;
             }
         }
+
+        public virtual ICollection<Doctor_Work_Branch> DoctorWorkBranches { get; set; }
+
+        public virtual ICollection<Appointment> Appointments { get; set; }
+
+
     }
 
 }

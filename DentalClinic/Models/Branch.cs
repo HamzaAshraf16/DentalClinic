@@ -18,5 +18,9 @@ namespace DentalClinic.Models
         [Column(TypeName = "nvarchar")]
         [StringLength(30)]
 		public string Name { get; set; }
+
+
+        public virtual ICollection<Doctor_Work_Branch> DoctorWorkBranches { get; set; }
+
     }
 }

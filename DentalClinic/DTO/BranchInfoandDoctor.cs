@@ -1,0 +1,38 @@
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace DentalClinic.DTO
+{
+    public class BranchInfoandDoctor
+    {
+        public int DoctorWorkBranchId { get; set; }
+
+        [Column(TypeName = "nvarchar")]
+        [StringLength(50)]
+        public string? DoctorName { get; set; }
+
+
+        [Column(TypeName = "nvarchar")]
+        [StringLength(30)]
+        public string? BranchName { get; set; }
+
+        [RegularExpression(@"^(الأثنين|الثلاثاء|الأربعاء|الخميس|الجمعة|السبت)$",
+        ErrorMessage = "يجب ان يكون يوم عمل ")]
+        public string? Day { get; set; }
+        [DefaultValue(true)]
+        public bool IsWork { get; set; }
+
+        [Column(TypeName = "time")]
+        public TimeSpan StartTime { get; set; }
+
+        [Column(TypeName = "time")]
+        public TimeSpan EndTime {  get; set; }
+
+
+        
+
+
+
+    }
+}

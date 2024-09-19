@@ -14,6 +14,13 @@ namespace DentalClinic
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("Default"));
             });
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("MyCors", policy =>
+                {
+                    policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+                });
+            });
             // Add services to the container.
 
             builder.Services.AddControllers();
@@ -32,6 +39,7 @@ namespace DentalClinic
 
             app.UseAuthorization();
 
+            app.UseCors("MyCors");
 
             app.MapControllers();
 

@@ -33,7 +33,6 @@ namespace DentalClinic.Models
 
         private bool _isWork;
         [DefaultValue(true)]
-
         public bool IsWork {get { return _isWork;} set { _isWork = value; } }
 
         private TimeSpan _startTime;
@@ -45,10 +44,6 @@ namespace DentalClinic.Models
         
         [Column(TypeName = "time")]
         public TimeSpan EndTime { get { return _endTime; } set { _endTime = value; } }
-
-
-
-
 
 
         [ForeignKey("Branch")]
