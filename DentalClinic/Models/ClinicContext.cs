@@ -20,7 +20,6 @@ namespace DentalClinic.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<PatientHistory>(entity =>
             {
@@ -68,6 +67,12 @@ namespace DentalClinic.Models
                 entity.Property(p => p.EndTime)
              .HasDefaultValue(new TimeSpan(1, 0, 0));
             });
+
+            modelBuilder.Entity<Patient>()
+            .HasOne(p => p.PatientHistory)     
+            .WithOne(ph => ph.Patient)         
+            .HasForeignKey<Patient>(p => p.PatientHistoryId);
+            base.OnModelCreating(modelBuilder);
         }
     }
 }
