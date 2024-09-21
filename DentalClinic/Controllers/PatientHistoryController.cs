@@ -82,6 +82,43 @@ namespace DentalClinic.Controllers
 
             return Ok(PatientHistory);
         }
+
+        [HttpGet("patient/{patientId}")]
+        public async Task<ActionResult> GetPatientHistoryByPatientId(int patientId)
+        {
+            var patientHistory = await context.PatientsHistory
+                .Include(ph => ph.Patient)
+                .Where(ph => ph.Patient.PatientId == patientId)
+                .Select(ph => new PatientHistoryDto
+                {
+                    PatientHistoryID = ph.PatientHistoryID,
+                    Hypertension = ph.Hypertension,
+                    Diabetes = ph.Diabetes,
+                    StomachAche = ph.StomachAche,
+                    PeriodontalDisease = ph.PeriodontalDisease,
+                    IsPregnant = ph.IsPregnant,
+                    IsBreastfeeding = ph.IsBreastfeeding,
+                    IsSmoking = ph.IsSmoking,
+                    KidneyDiseases = ph.KidneyDiseases,
+                    HeartDiseases = ph.HeartDiseases,
+                    Patient = new PatientForHistoryDto
+                    {
+                        PatientId = ph.Patient.PatientId,
+                        Name = ph.Patient.Name,
+                        Gender = ph.Patient.Gender,
+                        PhoneNumber = ph.Patient.PhoneNumber,
+                        Address = ph.Patient.Address
+                    }
+                })
+                .FirstOrDefaultAsync();
+
+            if (patientHistory == null)
+            {
+                return NotFound($"No patient history found for patient with ID {patientId}");
+            }
+
+            return Ok(patientHistory);
+        }
         [HttpPost]
         public async Task<IActionResult> CreatePatientHistory(PatientHistoryCreateDto patientHistoryCreate)
         {
