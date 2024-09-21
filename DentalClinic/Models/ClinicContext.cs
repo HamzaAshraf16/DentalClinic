@@ -71,7 +71,8 @@ namespace DentalClinic.Models
             modelBuilder.Entity<Patient>()
             .HasOne(p => p.PatientHistory)     
             .WithOne(ph => ph.Patient)         
-            .HasForeignKey<Patient>(p => p.PatientHistoryId);
+            .HasForeignKey<Patient>(p => p.PatientHistoryId)
+            .OnDelete(DeleteBehavior.Cascade); 
             base.OnModelCreating(modelBuilder);
         }
     }

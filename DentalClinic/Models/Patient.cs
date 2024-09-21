@@ -43,7 +43,7 @@ namespace DentalClinic.Models
         [StringLength(150)]
         public string Address { get; set; }
         [ForeignKey("PatientHistory")]
-        public int PatientHistoryId { get; set; }
+        public int? PatientHistoryId { get; set; }
         public virtual PatientHistory PatientHistory { get; set; }
 
     }

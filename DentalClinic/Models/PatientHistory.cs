@@ -42,7 +42,7 @@ namespace DentalClinic.Models
         [Column("Heart_Diseases")]
         [DefaultValue(false)]
         public bool HeartDiseases { get; set; }
-        public virtual Patient Patient { get; set; }
+        public virtual Patient? Patient { get; set; }
 
     }
 }

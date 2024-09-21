@@ -4,6 +4,7 @@ using DentalClinic.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DentalClinic.Migrations
 {
     [DbContext(typeof(ClinicContext))]
-    partial class ClinicContextModelSnapshot : ModelSnapshot
+    [Migration("20240921141817_editPatient")]
+    partial class editPatient
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -181,7 +184,7 @@ namespace DentalClinic.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<int?>("PatientHistoryId")
+                    b.Property<int>("PatientHistoryId")
                         .HasColumnType("int");
 
                     b.Property<string>("PhoneNumber")
@@ -195,8 +198,7 @@ namespace DentalClinic.Migrations
                     b.HasKey("PatientId");
 
                     b.HasIndex("PatientHistoryId")
-                        .IsUnique()
-                        .HasFilter("[PatientHistoryId] IS NOT NULL");
+                        .IsUnique();
 
                     b.ToTable("Patients");
                 });
@@ -324,7 +326,8 @@ namespace DentalClinic.Migrations
                     b.HasOne("DentalClinic.Models.PatientHistory", "PatientHistory")
                         .WithOne("Patient")
                         .HasForeignKey("DentalClinic.Models.Patient", "PatientHistoryId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("PatientHistory");
                 });
@@ -354,7 +357,8 @@ namespace DentalClinic.Migrations
 
             modelBuilder.Entity("DentalClinic.Models.PatientHistory", b =>
                 {
-                    b.Navigation("Patient");
+                    b.Navigation("Patient")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
