@@ -19,7 +19,6 @@ namespace DentalClinic.Models
         [StringLength(30)]
 		public string Name { get; set; }
 
-
         public virtual ICollection<Doctor_Work_Branch> DoctorWorkBranches { get; set; }
 
     }

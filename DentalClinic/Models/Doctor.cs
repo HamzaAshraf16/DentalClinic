@@ -38,7 +38,6 @@ namespace DentalClinic.Models
         }
 
         public virtual ICollection<Doctor_Work_Branch> DoctorWorkBranches { get; set; }
-
         public virtual ICollection<Appointment> Appointments { get; set; }
 
 

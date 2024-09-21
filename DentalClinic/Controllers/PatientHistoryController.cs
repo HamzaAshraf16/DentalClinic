@@ -85,6 +85,10 @@ namespace DentalClinic.Controllers
         [HttpPost]
         public async Task<IActionResult> CreatePatientHistory(PatientHistoryCreateDto patientHistoryCreate)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var patient = await context.Patients.FindAsync(patientHistoryCreate.PatientId);
             if (patient == null)
             {
@@ -131,13 +135,18 @@ namespace DentalClinic.Controllers
 
             return CreatedAtAction(nameof(GetById), new { id = patientHistory.PatientHistoryID }, patientHistoryDto);
         }
+
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdatePatientHistory(int id, PatientHistoryUpdateDto patientHistoryUpdate)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var patientHistory = await context.PatientsHistory.FindAsync(id);
             if (patientHistory == null)
             {
-                return NotFound();
+                return NotFound("patientHistory not Found");
             }
 
             patientHistory.Hypertension = patientHistoryUpdate.Hypertension;
@@ -160,7 +169,7 @@ namespace DentalClinic.Controllers
             var patientHistory = await context.PatientsHistory.FindAsync(id);
             if (patientHistory == null)
             {
-                return NotFound();
+                return NotFound("PatientHistory not found");
             }
 
             context.PatientsHistory.Remove(patientHistory);

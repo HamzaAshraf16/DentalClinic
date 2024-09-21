@@ -73,7 +73,7 @@ namespace DentalClinic.Controllers
 
             if (patient == null)
             {
-                return NotFound($"Patient with ID {id} not found.");
+                return NotFound(new {message= $"Patient with ID {id} not found." });
             }
 
             return Ok(patient);
@@ -154,7 +154,6 @@ namespace DentalClinic.Controllers
                 existingPatient.PatientHistory.KidneyDiseases = patientDto.KidneyDiseases;
                 existingPatient.PatientHistory.HeartDiseases = patientDto.HeartDiseases;
             }
-
             try
             {
                 
@@ -218,7 +217,7 @@ namespace DentalClinic.Controllers
 
             if (patient == null)
             {
-                return NotFound(); 
+                return NotFound(new {message="The patient not Founded"}); 
             }
 
 

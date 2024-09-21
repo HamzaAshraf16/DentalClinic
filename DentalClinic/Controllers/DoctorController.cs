@@ -25,9 +25,10 @@ namespace DentalClinic.Controllers
                                          .ToListAsync();
         }
 
+
         // GET: api/Doctor/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Doctor>> GetDoctor(int id)
+        public async Task<ActionResult<Doctor>> GetDoctorbyId(int id)
         {
             var doctor = await _context.Doctors.Include(d => d.DoctorWorkBranches)
                                                .Include(d => d.Appointments)
@@ -35,22 +36,24 @@ namespace DentalClinic.Controllers
 
             if (doctor == null)
             {
-                return NotFound();
+                return NotFound(new {message="The Doctor not Found"});
             }
 
-            return doctor;
+            return Ok(doctor);
         }
-
-
 
         [HttpPut("{id}")]
         public async Task<IActionResult> PutDoctor(int id, [FromBody] UpdateDoctorDto doctorDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             // Fetch the doctor entity from the database
             var existingDoctor = await _context.Doctors.FindAsync(id);
             if (existingDoctor == null)
             {
-                return NotFound("Doctor not found.");
+                return NotFound(new { message = "Doctor not found." });
             }
 
             // Update only the Password and PhoneNumber fields from the DTO
@@ -70,7 +73,7 @@ namespace DentalClinic.Controllers
             {
                 if (!DoctorExists(id))
                 {
-                    return NotFound();
+                    return NotFound(new { message = "Doctor not found." });
                 }
                 else
                 {
@@ -88,7 +91,7 @@ namespace DentalClinic.Controllers
             var doctor = await _context.Doctors.FindAsync(id);
             if (doctor == null)
             {
-                return NotFound();
+                return NotFound(new { message = "The Doctor not Found" });
             }
 
             _context.Doctors.Remove(doctor);
