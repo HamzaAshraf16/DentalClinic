@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DentalClinic.Migrations
 {
     /// <inheritdoc />
-    public partial class clinic : Migration
+    public partial class Allupdate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -31,8 +31,6 @@ namespace DentalClinic.Migrations
                 {
                     DoctorId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    Password = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     PhoneNumber = table.Column<string>(type: "nchar(11)", nullable: false)
                 },
@@ -66,12 +64,14 @@ namespace DentalClinic.Migrations
                 name: "PhoneNumbers",
                 columns: table => new
                 {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     Phonenumber = table.Column<string>(type: "nchar(11)", nullable: false),
                     BranchID = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PhoneNumbers", x => new { x.Phonenumber, x.BranchID });
+                    table.PrimaryKey("PK_PhoneNumbers", x => x.Id);
                     table.ForeignKey(
                         name: "FK_PhoneNumbers_Branchs_BranchID",
                         column: x => x.BranchID,
@@ -89,9 +89,9 @@ namespace DentalClinic.Migrations
                     BranchID = table.Column<int>(type: "int", nullable: false),
                     DoctorID = table.Column<int>(type: "int", nullable: false),
                     Day = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IsWork = table.Column<bool>(type: "bit", nullable: false),
-                    StartTime = table.Column<TimeSpan>(type: "time", nullable: false),
-                    EndTime = table.Column<TimeSpan>(type: "time", nullable: false)
+                    IsWork = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
+                    StartTime = table.Column<TimeSpan>(type: "time", nullable: false, defaultValue: new TimeSpan(0, 13, 0, 0, 0)),
+                    EndTime = table.Column<TimeSpan>(type: "time", nullable: false, defaultValue: new TimeSpan(0, 1, 0, 0, 0))
                 },
                 constraints: table =>
                 {
@@ -116,13 +116,11 @@ namespace DentalClinic.Migrations
                 {
                     PatientId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserName = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
-                    Password = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Gender = table.Column<byte>(type: "tinyint", nullable: false),
                     PhoneNumber = table.Column<string>(type: "nchar(11)", nullable: false),
                     Address = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
-                    PatientHistoryId = table.Column<int>(type: "int", nullable: false)
+                    PatientHistoryId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -144,7 +142,7 @@ namespace DentalClinic.Migrations
                     Cost = table.Column<int>(type: "int", nullable: false),
                     Time = table.Column<TimeSpan>(type: "time", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Reports = table.Column<string>(type: "nvarchar", nullable: false),
+                    Reports = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Type = table.Column<int>(type: "int", nullable: false),
                     DoctorId = table.Column<int>(type: "int", nullable: false),
                     PatientId = table.Column<int>(type: "int", nullable: false)
@@ -189,12 +187,20 @@ namespace DentalClinic.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Patients_PatientHistoryId",
                 table: "Patients",
-                column: "PatientHistoryId");
+                column: "PatientHistoryId",
+                unique: true,
+                filter: "[PatientHistoryId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PhoneNumbers_BranchID",
                 table: "PhoneNumbers",
                 column: "BranchID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PhoneNumbers_Phonenumber",
+                table: "PhoneNumbers",
+                column: "Phonenumber",
+                unique: true);
         }
 
         /// <inheritdoc />

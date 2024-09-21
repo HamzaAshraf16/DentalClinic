@@ -10,10 +10,7 @@ namespace DentalClinic.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int PatientId { get; set; } // Primary Key
-        [StringLength(20)]
-        public string? UserName { get; set; } 
-        [StringLength(20)]
-        public string? Password { get; set; } 
+         
         [Required]
         [Column(TypeName = "nvarchar")]
         [StringLength(50)]

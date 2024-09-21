@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DentalClinic.Migrations
 {
     [DbContext(typeof(ClinicContext))]
-    [Migration("20240921171533_updatetoapi")]
-    partial class updatetoapi
+    [Migration("20240921203230_Allupdate")]
+    partial class Allupdate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -47,7 +47,7 @@ namespace DentalClinic.Migrations
 
                     b.Property<string>("Reports")
                         .IsRequired()
-                        .HasColumnType("nvarchar");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<TimeSpan>("Time")
                         .HasColumnType("time");
@@ -100,17 +100,9 @@ namespace DentalClinic.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar");
 
-                    b.Property<string>("Password")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasColumnType("nchar(11)");
-
-                    b.Property<string>("UserName")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("DoctorId");
 
@@ -180,20 +172,12 @@ namespace DentalClinic.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar");
 
-                    b.Property<string>("Password")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
                     b.Property<int?>("PatientHistoryId")
                         .HasColumnType("int");
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasColumnType("nchar(11)");
-
-                    b.Property<string>("UserName")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("PatientId");
 
@@ -271,15 +255,25 @@ namespace DentalClinic.Migrations
 
             modelBuilder.Entity("DentalClinic.Models.PhoneNumber", b =>
                 {
-                    b.Property<string>("Phonenumber")
-                        .HasColumnType("nchar(11)");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("BranchID")
                         .HasColumnType("int");
 
-                    b.HasKey("Phonenumber", "BranchID");
+                    b.Property<string>("Phonenumber")
+                        .IsRequired()
+                        .HasColumnType("nchar(11)");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("BranchID");
+
+                    b.HasIndex("Phonenumber")
+                        .IsUnique();
 
                     b.ToTable("PhoneNumbers");
                 });

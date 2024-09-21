@@ -4,8 +4,7 @@ using DentalClinic.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
-using DentalClinic.Dtos;
+using DentalClinic.DTO;
 
 namespace DentalClinic.Controllers
 {
@@ -40,7 +39,7 @@ namespace DentalClinic.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddPhoneNumber([FromBody] AddPhoneNumberDto dto)
+        public IActionResult AddPhoneNumber([FromBody] PhoneNumberDto dto)
         {
             if (dto == null)
             {
@@ -76,7 +75,7 @@ namespace DentalClinic.Controllers
 
 
         [HttpPut("{id}")]
-        public IActionResult UpdatePhoneNumber(int id, [FromBody] UpdatePhoneNumberDto dto)
+        public IActionResult UpdatePhoneNumber(int id, [FromBody] PhoneNumberDto dto)
         {
             if (!ModelState.IsValid)
             {

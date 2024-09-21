@@ -192,8 +192,7 @@ namespace DentalClinic.Controllers
             
             var patient = new Patient
             {
-                UserName = newPatientDto.UserName,
-                Password = newPatientDto.Password, 
+                
                 Name = newPatientDto.Name,
                 Gender = newPatientDto.Gender,
                 PhoneNumber = newPatientDto.PhoneNumber,
