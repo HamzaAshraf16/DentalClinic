@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using DentalClinic.Models;
 using DentalClinic.DTO;
 using Microsoft.CodeAnalysis.Scripting;
-using BCrypt.Net;
+
 namespace DentalClinic.Controllers
 {
     [Route("api/[controller]")]
