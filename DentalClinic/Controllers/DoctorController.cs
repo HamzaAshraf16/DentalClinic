@@ -2,6 +2,9 @@
 using Microsoft.EntityFrameworkCore;
 using DentalClinic.Models;
 using DentalClinic.DTO;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace DentalClinic.Controllers
 {
@@ -18,47 +21,83 @@ namespace DentalClinic.Controllers
 
         // GET: api/Doctor
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Doctor>>> GetDoctors()
+        public async Task<ActionResult<IEnumerable<DoctorDTO>>> GetDoctors()
         {
-            return await _context.Doctors.Include(d => d.DoctorWorkBranches)
-                                         .Include(d => d.Appointments)
-                                         .ToListAsync();
+            var doctors = await _context.Doctors
+                                        .Include(d => d.DoctorWorkBranches)
+                                        .ThenInclude(dwb => dwb.Branch)
+                                        .ToListAsync();
+
+            var doctorDtos = doctors.Select(doctor => new DoctorDTO
+            {
+                DoctorId = doctor.DoctorId,
+                Name = doctor.Name,
+                PhoneNumber = doctor.PhoneNumber,
+                WorkBranches = doctor.DoctorWorkBranches.Select(dwb => new DoctorWorkBranchDTO
+                {
+                    Day = dwb.Day,
+                    StartTime = dwb.StartTime,
+                    EndTime = dwb.EndTime,
+                    BranchName = dwb.Branch.Name
+                }).ToList()
+            }).ToList();
+
+            return Ok(doctorDtos);
         }
 
         // GET: api/Doctor/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Doctor>> GetDoctor(int id)
+        public async Task<ActionResult<DoctorDTO>> GetDoctorById(int id)
         {
-            var doctor = await _context.Doctors.Include(d => d.DoctorWorkBranches)
-                                               .Include(d => d.Appointments)
-                                               .FirstOrDefaultAsync(d => d.DoctorId == id);
+            var doctor = await _context.Doctors
+                                       .Include(d => d.DoctorWorkBranches)
+                                       .ThenInclude(dwb => dwb.Branch)
+                                       .FirstOrDefaultAsync(d => d.DoctorId == id);
 
             if (doctor == null)
             {
-                return NotFound();
+                return NotFound(new { message = "Doctor not found" });
             }
 
-            return doctor;
+            var doctorDto = new DoctorDTO
+            {
+                DoctorId = doctor.DoctorId,
+                Name = doctor.Name,
+                PhoneNumber = doctor.PhoneNumber,
+                WorkBranches = doctor.DoctorWorkBranches.Select(dwb => new DoctorWorkBranchDTO
+                {
+                    Day = dwb.Day,
+                    StartTime = dwb.StartTime,
+                    EndTime = dwb.EndTime,
+                    BranchName = dwb.Branch.Name
+                }).ToList()
+            };
+
+            return Ok(doctorDto);
         }
 
-
-
+        // PUT: api/Doctor/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutDoctor(int id, [FromBody] UpdateDoctorDto doctorDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             // Fetch the doctor entity from the database
             var existingDoctor = await _context.Doctors.FindAsync(id);
             if (existingDoctor == null)
             {
-                return NotFound("Doctor not found.");
+                return NotFound(new { message = "Doctor not found." });
             }
 
             // Update only the Password and PhoneNumber fields from the DTO
-            existingDoctor.Password = doctorDto.Password;
+           
             existingDoctor.PhoneNumber = doctorDto.PhoneNumber;
 
             // Mark properties as modified
-            _context.Entry(existingDoctor).Property(d => d.Password).IsModified = true;
+           
             _context.Entry(existingDoctor).Property(d => d.PhoneNumber).IsModified = true;
 
             try
@@ -70,7 +109,7 @@ namespace DentalClinic.Controllers
             {
                 if (!DoctorExists(id))
                 {
-                    return NotFound();
+                    return NotFound(new { message = "Doctor not found." });
                 }
                 else
                 {
@@ -88,7 +127,7 @@ namespace DentalClinic.Controllers
             var doctor = await _context.Doctors.FindAsync(id);
             if (doctor == null)
             {
-                return NotFound();
+                return NotFound(new { message = "Doctor not found." });
             }
 
             _context.Doctors.Remove(doctor);

@@ -7,11 +7,6 @@ namespace DentalClinic.DTO
 {
     public class UpdateDoctorDto
     {
-
-        [StringLength(50)]
-        public string? Password { get; set; }
-        
-
         private string _phoneNumber;
         public string PhoneNumber
         {

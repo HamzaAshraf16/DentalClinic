@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DentalClinic.Migrations
 {
     [DbContext(typeof(ClinicContext))]
-    [Migration("20240917131131_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20240921203230_Allupdate")]
+    partial class Allupdate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -47,7 +47,7 @@ namespace DentalClinic.Migrations
 
                     b.Property<string>("Reports")
                         .IsRequired()
-                        .HasColumnType("nvarchar");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<TimeSpan>("Time")
                         .HasColumnType("time");
@@ -100,17 +100,9 @@ namespace DentalClinic.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar");
 
-                    b.Property<string>("Password")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasColumnType("nchar(11)");
-
-                    b.Property<string>("UserName")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("DoctorId");
 
@@ -180,24 +172,18 @@ namespace DentalClinic.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar");
 
-                    b.Property<string>("Password")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<int>("PatientHistoryId")
+                    b.Property<int?>("PatientHistoryId")
                         .HasColumnType("int");
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasColumnType("nchar(11)");
 
-                    b.Property<string>("UserName")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
                     b.HasKey("PatientId");
 
-                    b.HasIndex("PatientHistoryId");
+                    b.HasIndex("PatientHistoryId")
+                        .IsUnique()
+                        .HasFilter("[PatientHistoryId] IS NOT NULL");
 
                     b.ToTable("Patients");
                 });
@@ -269,15 +255,25 @@ namespace DentalClinic.Migrations
 
             modelBuilder.Entity("DentalClinic.Models.PhoneNumber", b =>
                 {
-                    b.Property<string>("Phonenumber")
-                        .HasColumnType("nchar(11)");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("BranchID")
                         .HasColumnType("int");
 
-                    b.HasKey("Phonenumber", "BranchID");
+                    b.Property<string>("Phonenumber")
+                        .IsRequired()
+                        .HasColumnType("nchar(11)");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("BranchID");
+
+                    b.HasIndex("Phonenumber")
+                        .IsUnique();
 
                     b.ToTable("PhoneNumbers");
                 });
@@ -285,7 +281,7 @@ namespace DentalClinic.Migrations
             modelBuilder.Entity("DentalClinic.Models.Appointment", b =>
                 {
                     b.HasOne("DentalClinic.Models.Doctor", "Doctor")
-                        .WithMany()
+                        .WithMany("Appointments")
                         .HasForeignKey("DoctorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -304,13 +300,13 @@ namespace DentalClinic.Migrations
             modelBuilder.Entity("DentalClinic.Models.Doctor_Work_Branch", b =>
                 {
                     b.HasOne("DentalClinic.Models.Branch", "Branch")
-                        .WithMany()
+                        .WithMany("DoctorWorkBranches")
                         .HasForeignKey("BranchID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("DentalClinic.Models.Doctor", "Doctor")
-                        .WithMany()
+                        .WithMany("DoctorWorkBranches")
                         .HasForeignKey("DoctorID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -323,10 +319,9 @@ namespace DentalClinic.Migrations
             modelBuilder.Entity("DentalClinic.Models.Patient", b =>
                 {
                     b.HasOne("DentalClinic.Models.PatientHistory", "PatientHistory")
-                        .WithMany()
-                        .HasForeignKey("PatientHistoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .WithOne("Patient")
+                        .HasForeignKey("DentalClinic.Models.Patient", "PatientHistoryId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("PatientHistory");
                 });
@@ -340,6 +335,23 @@ namespace DentalClinic.Migrations
                         .IsRequired();
 
                     b.Navigation("Branch");
+                });
+
+            modelBuilder.Entity("DentalClinic.Models.Branch", b =>
+                {
+                    b.Navigation("DoctorWorkBranches");
+                });
+
+            modelBuilder.Entity("DentalClinic.Models.Doctor", b =>
+                {
+                    b.Navigation("Appointments");
+
+                    b.Navigation("DoctorWorkBranches");
+                });
+
+            modelBuilder.Entity("DentalClinic.Models.PatientHistory", b =>
+                {
+                    b.Navigation("Patient");
                 });
 #pragma warning restore 612, 618
         }

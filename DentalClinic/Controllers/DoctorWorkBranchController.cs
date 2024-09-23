@@ -76,7 +76,6 @@ namespace DentalClinic.Controllers
                 return StatusCode(500, new { message = "An error occurred while retrieving data.", error = ex.Message });
 
             }
-            
 
         }
 

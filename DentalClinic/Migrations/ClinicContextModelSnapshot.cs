@@ -109,7 +109,7 @@ namespace DentalClinic.Migrations
 
                     b.Property<string>("Reports")
                         .IsRequired()
-                        .HasColumnType("nvarchar");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<TimeSpan>("Time")
                         .HasColumnType("time");
@@ -162,17 +162,9 @@ namespace DentalClinic.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar");
 
-                    b.Property<string>("Password")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasColumnType("nchar(11)");
-
-                    b.Property<string>("UserName")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("DoctorId");
 
@@ -242,10 +234,6 @@ namespace DentalClinic.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar");
 
-                    b.Property<string>("Password")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
                     b.Property<int?>("PatientHistoryId")
                         .HasColumnType("int");
 
@@ -253,6 +241,7 @@ namespace DentalClinic.Migrations
                         .IsRequired()
                         .HasColumnType("nchar(11)");
 
+<<<<<<< HEAD
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
@@ -260,6 +249,8 @@ namespace DentalClinic.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+=======
+>>>>>>> eae4aa40e29e518b79f93102783f19f5f66c5fef
                     b.HasKey("PatientId");
 
                     b.HasIndex("PatientHistoryId")
@@ -340,15 +331,25 @@ namespace DentalClinic.Migrations
 
             modelBuilder.Entity("DentalClinic.Models.PhoneNumber", b =>
                 {
-                    b.Property<string>("Phonenumber")
-                        .HasColumnType("nchar(11)");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("BranchID")
                         .HasColumnType("int");
 
-                    b.HasKey("Phonenumber", "BranchID");
+                    b.Property<string>("Phonenumber")
+                        .IsRequired()
+                        .HasColumnType("nchar(11)");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("BranchID");
+
+                    b.HasIndex("Phonenumber")
+                        .IsUnique();
 
                     b.ToTable("PhoneNumbers");
                 });

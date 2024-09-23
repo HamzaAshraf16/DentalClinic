@@ -56,7 +56,7 @@ namespace DentalClinic.Models
 
         private string _report;
         [Required]
-        [Column(TypeName = "nvarchar")]
+        [Column(TypeName = "nvarchar(max)")]
         public string Reports
         {
             get { return _report; }
