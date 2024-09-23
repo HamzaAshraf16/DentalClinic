@@ -26,6 +26,12 @@ namespace DentalClinic.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterModel model)
         {
+            if (await userManager.FindByEmailAsync(model.Email) is not null)
+                return BadRequest(new { Error = "Email is already registered!" });
+
+            if (await userManager.FindByNameAsync(model.Name) is not null)
+                return BadRequest(new { Error = "Username is already registered!" });
+
             ApplicationUser user = new ApplicationUser { UserName = model.Email, Email = model.Email,PhoneNumber = model.PhoneNumber };
             var result = await userManager.CreateAsync(user, model.Password);
 
