@@ -4,6 +4,7 @@ using DentalClinic.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DentalClinic.Migrations
 {
     [DbContext(typeof(ClinicContext))]
-    partial class ClinicContextModelSnapshot : ModelSnapshot
+    [Migration("20240923154336_AuthModel")]
+    partial class AuthModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -253,9 +256,6 @@ namespace DentalClinic.Migrations
                         .IsRequired()
                         .HasColumnType("nchar(11)");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("UserName")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
@@ -265,10 +265,6 @@ namespace DentalClinic.Migrations
                     b.HasIndex("PatientHistoryId")
                         .IsUnique()
                         .HasFilter("[PatientHistoryId] IS NOT NULL");
-
-                    b.HasIndex("UserId")
-                        .IsUnique()
-                        .HasFilter("[UserId] IS NOT NULL");
 
                     b.ToTable("Patients");
                 });
@@ -531,13 +527,7 @@ namespace DentalClinic.Migrations
                         .HasForeignKey("DentalClinic.Models.Patient", "PatientHistoryId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("DentalClinic.Models.ApplicationUser", "User")
-                        .WithOne("Patient")
-                        .HasForeignKey("DentalClinic.Models.Patient", "UserId");
-
                     b.Navigation("PatientHistory");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("DentalClinic.Models.PhoneNumber", b =>
@@ -599,12 +589,6 @@ namespace DentalClinic.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("DentalClinic.Models.ApplicationUser", b =>
-                {
-                    b.Navigation("Patient")
                         .IsRequired();
                 });
 

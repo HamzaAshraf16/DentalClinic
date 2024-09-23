@@ -1,6 +1,10 @@
 
 using DentalClinic.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace DentalClinic
 {
@@ -14,6 +18,35 @@ namespace DentalClinic
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("Default"));
             });
+
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>(Options =>
+            {
+                Options.Password.RequireUppercase = false;
+                Options.Password.RequireDigit = false;
+            })
+                .AddEntityFrameworkStores<ClinicContext>();
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.RequireHttpsMetadata = false;
+                options.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidateIssuerSigningKey = true,
+                    ValidateIssuer = true,
+                    ValidateLifetime = true,
+                    ValidIssuer = "http://localhost:37439/",
+                    ValidateAudience = true,
+                    ValidAudience = "http://localhost:4200/",
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("dji215ajiowdjqa7sdfadfqeffsdgsd427ak1579255")),
+
+                };
+            });
+
+
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("MyCors", policy =>

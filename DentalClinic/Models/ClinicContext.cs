@@ -1,8 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace DentalClinic.Models
 {
-    public class ClinicContext : DbContext
+    public class ClinicContext : IdentityDbContext<ApplicationUser>
     { 
         public ClinicContext()
         {

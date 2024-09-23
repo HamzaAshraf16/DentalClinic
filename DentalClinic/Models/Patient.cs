@@ -46,5 +46,9 @@ namespace DentalClinic.Models
         public int? PatientHistoryId { get; set; }
         public virtual PatientHistory PatientHistory { get; set; }
 
+        [Column(TypeName = "nvarchar(450)")]
+        [ForeignKey("User")]
+        public string? UserId { get; set; }
+        public virtual ApplicationUser User { get; set; }
     }
 }

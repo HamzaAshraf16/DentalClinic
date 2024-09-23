@@ -4,6 +4,7 @@ using DentalClinic.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DentalClinic.Migrations
 {
     [DbContext(typeof(ClinicContext))]
-    partial class ClinicContextModelSnapshot : ModelSnapshot
+    [Migration("20240923171129_edit3")]
+    partial class edit3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -59,6 +62,7 @@ namespace DentalClinic.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("PhoneNumberConfirmed")
@@ -254,6 +258,7 @@ namespace DentalClinic.Migrations
                         .HasColumnType("nchar(11)");
 
                     b.Property<string>("UserId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("UserName")
@@ -267,8 +272,7 @@ namespace DentalClinic.Migrations
                         .HasFilter("[PatientHistoryId] IS NOT NULL");
 
                     b.HasIndex("UserId")
-                        .IsUnique()
-                        .HasFilter("[UserId] IS NOT NULL");
+                        .IsUnique();
 
                     b.ToTable("Patients");
                 });
@@ -533,7 +537,9 @@ namespace DentalClinic.Migrations
 
                     b.HasOne("DentalClinic.Models.ApplicationUser", "User")
                         .WithOne("Patient")
-                        .HasForeignKey("DentalClinic.Models.Patient", "UserId");
+                        .HasForeignKey("DentalClinic.Models.Patient", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("PatientHistory");
 
