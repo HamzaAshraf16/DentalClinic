@@ -104,6 +104,8 @@ namespace DentalClinic.Controllers
                 Token = new JwtSecurityTokenHandler().WriteToken(token),
                 ExpiresOn = token.ValidTo
             };
+            return Ok(authModel);
+        }
 
 
         private async Task<JwtSecurityToken> GenerateJwtToken(ApplicationUser user)
