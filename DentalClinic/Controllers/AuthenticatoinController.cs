@@ -1,5 +1,6 @@
 ﻿using DentalClinic.Migrations;
 using DentalClinic.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -105,8 +106,6 @@ namespace DentalClinic.Controllers
             };
 
 
-            return Ok(authModel);
-        }
         private async Task<JwtSecurityToken> GenerateJwtToken(ApplicationUser user)
         {
             List<Claim> UserClaims = new List<Claim>();
