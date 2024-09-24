@@ -33,7 +33,7 @@ namespace DentalClinic.Controllers
 
             if (phoneNumbers == null || !phoneNumbers.Any())
             {
-                return NotFound("لا توجد أرقام هاتف");
+                return NotFound(new { message = "لا توجد أرقام هاتف" });
             }
             return Ok(phoneNumbers);
         }
