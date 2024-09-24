@@ -110,20 +110,20 @@ namespace DentalClinic.Controllers
         ////[HttpDelete("{id}")]
         ////public IActionResult deletePhoneNumberById(int id)
         ////{
-        ////    // البحث عن رقم الهاتف باستخدام الـ Id
+        ////   
         ////    var phoneNumber = context.PhoneNumbers.FirstOrDefault(p => p.Id == id);
 
-        ////    // إذا لم يتم العثور على الرقم
+        ////   
         ////    if (phoneNumber == null)
         ////    {
         ////        return NotFound("رقم الهاتف غير موجود.");
         ////    }
 
-        ////    // حذف الرقم من قاعدة البيانات
+        ////    
         ////    context.PhoneNumbers.Remove(phoneNumber);
         ////    context.SaveChanges();
 
-        ////    // الرد بالتأكيد على الحذف
+        ////    
         ////    return Ok(new { message = "تم حذف رقم الهاتف بنجاح." });
         ////}
 
