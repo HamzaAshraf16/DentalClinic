@@ -17,11 +17,13 @@ namespace DentalClinic.Controllers
     {
         private readonly ClinicContext context;
         private readonly UserManager<ApplicationUser> userManager;
+        private readonly IConfiguration _configuration;
 
-        public AuthenticatoinController(ClinicContext context,UserManager<ApplicationUser> userManager)
+        public AuthenticatoinController(ClinicContext context,UserManager<ApplicationUser> userManager,IConfiguration configuration)
         {
             this.context = context;
             this.userManager = userManager;
+            this._configuration = configuration;
         }
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterModel model)
@@ -82,14 +84,14 @@ namespace DentalClinic.Controllers
                 UserClaims.Add(new Claim(ClaimTypes.Role, role));
             }
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("dji215ajiowdjqa7sdfadfqeffsdgsd427ak1579255"));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             JwtSecurityToken token = new JwtSecurityToken(
-                issuer: "http://localhost:37439/",
-                audience: "http://localhost:4200/",
+                issuer: _configuration["JWT:issuer"],
+                audience: _configuration["JWT:audience"],
                 claims: UserClaims,
-                expires: DateTime.Now.AddHours(2),
+                expires: DateTime.Now.AddDays(15),
                 signingCredentials: creds
             );
 

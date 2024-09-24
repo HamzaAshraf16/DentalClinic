@@ -38,10 +38,10 @@ namespace DentalClinic
                     ValidateIssuerSigningKey = true,
                     ValidateIssuer = true,
                     ValidateLifetime = true,
-                    ValidIssuer = "http://localhost:37439/",
+                    ValidIssuer = builder.Configuration["JWT:issuer"],
                     ValidateAudience = true,
-                    ValidAudience = "http://localhost:4200/",
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("dji215ajiowdjqa7sdfadfqeffsdgsd427ak1579255")),
+                    ValidAudience = builder.Configuration["JWT:audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"])),
 
                 };
             });

@@ -3,13 +3,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DentalClinic.Models
 {
-<<<<<<< HEAD
     public class ClinicContext : IdentityDbContext<ApplicationUser>
     { 
-=======
-    public class ClinicContext : DbContext
-    {
->>>>>>> eae4aa40e29e518b79f93102783f19f5f66c5fef
         public ClinicContext()
         {
 
