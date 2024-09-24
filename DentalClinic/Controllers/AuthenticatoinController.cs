@@ -1,5 +1,6 @@
 ﻿using DentalClinic.Migrations;
 using DentalClinic.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -71,6 +72,20 @@ namespace DentalClinic.Controllers
             return BadRequest(result.Errors);
         }
 
+        [HttpGet("GetAllUsers")]
+        [Authorize(Roles = "Admin")]  
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var users = await userManager.Users.Select(user => new
+            {
+                user.Id,
+                user.UserName,
+                user.Email,
+                Roles = userManager.GetRolesAsync(user).Result
+            }).ToListAsync();
+
+            return Ok(users);
+        }
         private async Task<JwtSecurityToken> GenerateJwtToken(ApplicationUser user)
         {
             List<Claim> UserClaims = new List<Claim>();
