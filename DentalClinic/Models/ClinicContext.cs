@@ -5,11 +5,7 @@ namespace DentalClinic.Models
 {
     public class ClinicContext : IdentityDbContext<ApplicationUser>
     { 
-        public ClinicContext()
-        {
-
-        }
-
+      
         public ClinicContext(DbContextOptions options) : base(options) { }
 
         public virtual DbSet<Appointment> Appointments { get; set; }

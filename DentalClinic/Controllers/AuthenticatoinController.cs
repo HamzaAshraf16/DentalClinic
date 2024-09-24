@@ -28,6 +28,11 @@ namespace DentalClinic.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+
+            }
             if (await userManager.FindByEmailAsync(model.Email) is not null)
                 return BadRequest(new { Error = "Email is already registered!" });
 
@@ -71,6 +76,37 @@ namespace DentalClinic.Controllers
             return BadRequest(result.Errors);
         }
 
+
+        [HttpPost("login")]
+
+        public async Task<IActionResult> Login(LoginModel login)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+
+            }
+            var user = await userManager.FindByEmailAsync(login.Email);
+            if (user is null || !await userManager.CheckPasswordAsync(user, login.Password))
+            {
+                return BadRequest(new { Error = "Invalid email or password." });
+            }
+            JwtSecurityToken token = await GenerateJwtToken(user);
+            var rolelist = await userManager.GetRolesAsync(user);
+            AuthenticatoinModel authModel = new AuthenticatoinModel()
+            {
+                Message = "Login successful",
+                IsAuthenticated = true,
+                Username = user.UserName,
+                Email = user.Email,
+                Roles = rolelist.ToList(),
+                Token = new JwtSecurityTokenHandler().WriteToken(token),
+                ExpiresOn = token.ValidTo
+            };
+
+
+            return Ok(authModel);
+        }
         private async Task<JwtSecurityToken> GenerateJwtToken(ApplicationUser user)
         {
             List<Claim> UserClaims = new List<Claim>();
@@ -97,6 +133,8 @@ namespace DentalClinic.Controllers
 
             return token;
         }
+
+
     }
 }
 

@@ -241,16 +241,9 @@ namespace DentalClinic.Migrations
                         .IsRequired()
                         .HasColumnType("nchar(11)");
 
-<<<<<<< HEAD
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("UserName")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-=======
->>>>>>> eae4aa40e29e518b79f93102783f19f5f66c5fef
                     b.HasKey("PatientId");
 
                     b.HasIndex("PatientHistoryId")
