@@ -79,7 +79,6 @@ namespace DentalClinic.Controllers
 
 
         [HttpPost("login")]
-
         public async Task<IActionResult> Login(LoginModel login)
         {
             if (!ModelState.IsValid)
@@ -149,6 +148,46 @@ namespace DentalClinic.Controllers
             };
 
             return Ok(authModel);
+        }
+
+        [Authorize]
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateUser(UpdateUserModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound(new { Error = "User not found." });
+            }
+
+            user.Email = model.Email;
+            user.UserName = model.Email; 
+            user.PhoneNumber = model.PhoneNumber;
+
+            var result = await userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+            {
+                return BadRequest(result.Errors);
+            }
+
+            var patient = await context.Patients.FirstOrDefaultAsync(p => p.UserId == user.Id);
+            if (patient != null)
+            {
+                patient.Name = model.Name;
+                patient.Gender = model.Gender;
+                patient.Address = model.Address;
+                patient.PhoneNumber = model.PhoneNumber;
+
+                context.Patients.Update(patient);
+                await context.SaveChangesAsync();
+            }
+
+            return Ok(new { Message = "User data updated successfully." });
         }
         private async Task<JwtSecurityToken> GenerateJwtToken(ApplicationUser user)
         {
