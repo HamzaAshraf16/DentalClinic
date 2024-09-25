@@ -154,6 +154,7 @@ namespace DentalClinic.Controllers
 
             return Ok(authModel);
         }
+<<<<<<< HEAD
         [HttpPost("ForgotPassword")]
         public async Task<IActionResult> ForgotPassword(ForgotPasswordModel model)
         {
@@ -288,6 +289,23 @@ namespace DentalClinic.Controllers
 
         // Other methods...
 
+=======
+
+        [HttpGet("GetAllUsers")]
+        [Authorize(Roles = "Admin")]  
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var users = await userManager.Users.Select(user => new
+            {
+                user.Id,
+                user.UserName,
+                user.Email,
+                Roles = userManager.GetRolesAsync(user).Result
+            }).ToListAsync();
+
+            return Ok(users);
+        }
+>>>>>>> 07606cd8d038919b85e8b6925f1b9c59ba56000d
         private async Task<JwtSecurityToken> GenerateJwtToken(ApplicationUser user)
         {
             List<Claim> userClaims = new List<Claim>
