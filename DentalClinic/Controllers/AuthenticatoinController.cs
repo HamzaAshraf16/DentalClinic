@@ -150,6 +150,21 @@ namespace DentalClinic.Controllers
 
             return Ok(authModel);
         }
+
+        [HttpGet("GetAllUsers")]
+        [Authorize(Roles = "Admin")]  
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var users = await userManager.Users.Select(user => new
+            {
+                user.Id,
+                user.UserName,
+                user.Email,
+                Roles = userManager.GetRolesAsync(user).Result
+            }).ToListAsync();
+
+            return Ok(users);
+        }
         private async Task<JwtSecurityToken> GenerateJwtToken(ApplicationUser user)
         {
             List<Claim> UserClaims = new List<Claim>();
