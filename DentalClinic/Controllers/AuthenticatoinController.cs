@@ -108,6 +108,48 @@ namespace DentalClinic.Controllers
         }
 
 
+        [Authorize]
+        [HttpPost("ChangePassword")]
+        public async Task<IActionResult> ChangePassword(ChangePasswordModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound(new { Error = "User not found." });
+            }
+
+            if (!await userManager.CheckPasswordAsync(user, model.CurrentPassword))
+            {
+                return BadRequest(new { Error = "Current password is incorrect." });
+            }
+
+            var result = await userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+            if (!result.Succeeded)
+            {
+                return BadRequest(result.Errors);
+            }
+
+            JwtSecurityToken token = await GenerateJwtToken(user);
+            var rolelist = await userManager.GetRolesAsync(user);
+
+            AuthenticatoinModel authModel = new AuthenticatoinModel()
+            {
+                Message = "Password changed successfully",
+                IsAuthenticated = true,
+                Username = user.UserName,
+                Email = user.Email,
+                Roles = rolelist.ToList(),
+                Token = new JwtSecurityTokenHandler().WriteToken(token),
+                ExpiresOn = token.ValidTo
+            };
+
+            return Ok(authModel);
+        }
         private async Task<JwtSecurityToken> GenerateJwtToken(ApplicationUser user)
         {
             List<Claim> UserClaims = new List<Claim>();
