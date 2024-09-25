@@ -10,6 +10,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using System.Collections.Concurrent;
+using Microsoft.EntityFrameworkCore;
 
 namespace DentalClinic.Controllers
 {
@@ -154,39 +155,36 @@ namespace DentalClinic.Controllers
 
             return Ok(authModel);
         }
-<<<<<<< HEAD
+
 
         [Authorize]
         [HttpPut("update")]
         public async Task<IActionResult> UpdateUser(UpdateUserModel model)
-=======
-<<<<<<< HEAD
-        [HttpPost("ForgotPassword")]
-        public async Task<IActionResult> ForgotPassword(ForgotPasswordModel model)
->>>>>>> 2d6ae3cd056f10c21ea93c886770f07e27344b05
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-<<<<<<< HEAD
             var user = await userManager.GetUserAsync(User);
             if (user == null)
             {
                 return NotFound(new { Error = "User not found." });
             }
 
+            // Update user properties
             user.Email = model.Email;
-            user.UserName = model.Email; 
+            user.UserName = model.Email; // If you want to allow username change
             user.PhoneNumber = model.PhoneNumber;
 
+            // Update in the UserManager
             var result = await userManager.UpdateAsync(user);
             if (!result.Succeeded)
             {
                 return BadRequest(result.Errors);
             }
 
+            // Optionally, update other related data (e.g., Patient record if applicable)
             var patient = await context.Patients.FirstOrDefaultAsync(p => p.UserId == user.Id);
             if (patient != null)
             {
@@ -201,7 +199,16 @@ namespace DentalClinic.Controllers
 
             return Ok(new { Message = "User data updated successfully." });
         }
-=======
+
+
+        [HttpPost("ForgotPassword")]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var user = await userManager.FindByEmailAsync(model.Email);
             if (user == null)
             {
@@ -214,7 +221,7 @@ namespace DentalClinic.Controllers
             ResetCodes[model.Email] = new ResetCodeEntry { Code = resetCode, CreatedAt = DateTime.UtcNow };
 
             // Store the reset code temporarily
-           // ResetCodes[model.Email] = resetCode;
+            // ResetCodes[model.Email] = resetCode;
 
             // Send the code to the user's email
             var emailMessage = new MimeMessage();
@@ -237,41 +244,8 @@ namespace DentalClinic.Controllers
             return Ok(new { Message = "Password reset code has been sent to your email." });
         }
 
-        //[HttpPost("ResetPassword")]
-        //public async Task<IActionResult> ResetPassword(ResetPasswordModel model)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest(ModelState);
-        //    }
 
-        //    var user = await userManager.FindByEmailAsync(model.Email);
-        //    if (user == null)
-        //    {
-        //        return BadRequest(new { Error = "User not found." });
-        //    }
 
-        //    Validate the reset code
-        //    if (!ResetCodes.TryGetValue(model.Email, out var storedCode) || model.Code != storedCode)
-        //    {
-        //        return BadRequest(new { Error = "Invalid reset code." });
-        //    }
-
-        //    Generate a password reset token
-        //   var resetToken = await userManager.GeneratePasswordResetTokenAsync(user);
-
-        //    Proceed to reset the password using the token
-        //    var resetPassResult = await userManager.ResetPasswordAsync(user, resetToken, model.NewPassword);
-        //    if (!resetPassResult.Succeeded)
-        //    {
-        //        return BadRequest(resetPassResult.Errors);
-        //    }
-
-        //    Remove the reset code after successful reset
-        //    ResetCodes.TryRemove(model.Email, out _);
-
-        //    return Ok(new { Message = "Password has been reset successfully." });
-        //}
         [HttpPost("ResetPassword")]
         public async Task<IActionResult> ResetPassword(ResetPasswordModel model)
         {
@@ -315,21 +289,6 @@ namespace DentalClinic.Controllers
         }
 
 
-
-
-
-        private string GenerateRandomCode(int length)
-        {
-            const string chars = "0123456789";
-            var random = new Random();
-            return new string(Enumerable.Repeat(chars, length)
-              .Select(s => s[random.Next(s.Length)]).ToArray());
-        }
-
-        // Other methods...
-
-=======
-
         [HttpGet("GetAllUsers")]
         [Authorize(Roles = "Admin")]  
         public async Task<IActionResult> GetAllUsers()
@@ -344,8 +303,46 @@ namespace DentalClinic.Controllers
 
             return Ok(users);
         }
->>>>>>> 07606cd8d038919b85e8b6925f1b9c59ba56000d
->>>>>>> 2d6ae3cd056f10c21ea93c886770f07e27344b05
+
+        [HttpGet("verify-token")]
+        [Authorize]
+        public IActionResult VerifyToken()
+        {
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (string.IsNullOrEmpty(token))
+            {
+                return Unauthorized("Invalid token.");
+            }
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var validationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Key"])),
+                ValidateIssuer = true,
+                ValidIssuer = _configuration["JWT:issuer"],
+                ValidateAudience = true,
+                ValidAudience = _configuration["JWT:audience"],
+                ValidateLifetime = true
+            };
+
+            try
+            {
+
+                var principal = tokenHandler.ValidateToken(token, validationParameters, out var validatedToken);
+                return Ok(new { Message = "Token is valid.", User = principal.Identity.Name });
+            }
+            catch (SecurityTokenExpiredException)
+            {
+                return Unauthorized("Token has expired.");
+            }
+            catch (SecurityTokenException)
+            {
+                return Unauthorized("Invalid token.");
+            }
+        }
+
         private async Task<JwtSecurityToken> GenerateJwtToken(ApplicationUser user)
         {
             List<Claim> userClaims = new List<Claim>
@@ -373,6 +370,16 @@ namespace DentalClinic.Controllers
             );
 
             return token;
+        }
+
+
+
+        private string GenerateRandomCode(int length)
+        {
+            const string chars = "0123456789";
+            var random = new Random();
+            return new string(Enumerable.Repeat(chars, length)
+              .Select(s => s[random.Next(s.Length)]).ToArray());
         }
     }
 }
