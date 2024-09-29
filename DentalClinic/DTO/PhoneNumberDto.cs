@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DentalClinic.DTO
 {
@@ -10,6 +11,15 @@ namespace DentalClinic.DTO
 
         [Required]
         public int BranchID { get; set; }
+        [Required(ErrorMessage = "Lacation is required")]
+        [Column(TypeName = "nvarchar")]
+        [StringLength(100)]
+        public string BranchLocation { get; set; }
+
+        [Required(ErrorMessage = "Name is required")]
+        [Column(TypeName = "nvarchar")]
+        [StringLength(30)]
+        public string BranchName { get; set; }
     }
 }
 

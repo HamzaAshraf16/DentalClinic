@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DentalClinic.DTO;
+using Microsoft.CodeAnalysis.Operations;
 
 namespace DentalClinic.Controllers
 {
@@ -27,7 +28,10 @@ namespace DentalClinic.Controllers
                                       .Select(p => new
                                       {
                                           Phonenumber = p.Phonenumber,
-                                          BranchName = p.Branch.Name
+                                          BranchID=p.BranchID,
+                                          BranchName = p.Branch.Name,
+                                          BranchLocation = p.Branch.Location,
+
                                       })
                                       .ToList();
 
@@ -46,18 +50,20 @@ namespace DentalClinic.Controllers
                 return BadRequest("بيانات الهاتف غير صالحة");
             }
 
-            if (dto.BranchID <= 0)
+            // Validate model state
+            if (!ModelState.IsValid)
             {
-                return BadRequest(" رقم id  خطأ ");
+                return BadRequest(ModelState);
             }
 
-
+            // Check if the branch exists
             var branchExists = context.Branchs.Any(b => b.BranchId == dto.BranchID);
             if (!branchExists)
             {
                 return BadRequest("الفرع غير موجود");
             }
 
+            // Create and add the new phone number
             var phoneNumber = new PhoneNumber
             {
                 Phonenumber = dto.Phonenumber,
@@ -67,9 +73,13 @@ namespace DentalClinic.Controllers
             context.PhoneNumbers.Add(phoneNumber);
             context.SaveChanges();
 
-            return CreatedAtAction(nameof(GetAllPhoneNumbers), new { id = phoneNumber.Phonenumber }, phoneNumber);
+            // Return the created phone number
+            return CreatedAtAction(nameof(GetAllPhoneNumbers), new { id = phoneNumber.Phonenumber }, new
+            {
+                phoneNumber.Phonenumber,
+                BranchName = dto.BranchName
+            });
         }
-
 
 
 
