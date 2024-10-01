@@ -11,7 +11,7 @@ namespace DentalClinic.Models
 
         [Required (ErrorMessage ="Lacation is required")]
         [Column(TypeName = "nvarchar")]
-        [StringLength(30)]
+        [StringLength(100)]
         public  string Location { get; set; }
 
 		[Required(ErrorMessage = "Name is required")]

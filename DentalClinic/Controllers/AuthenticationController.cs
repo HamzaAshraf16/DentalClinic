@@ -16,7 +16,7 @@ namespace DentalClinic.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthenticatoinController : ControllerBase
+    public class AuthenticationController : ControllerBase
     {
         private readonly ClinicContext context;
         private readonly UserManager<ApplicationUser> userManager;
@@ -26,7 +26,7 @@ namespace DentalClinic.Controllers
         private static readonly ConcurrentDictionary<string, ResetCodeEntry> ResetCodes = new ConcurrentDictionary<string, ResetCodeEntry>();
 
 
-        public AuthenticatoinController(ClinicContext context, UserManager<ApplicationUser> userManager, IConfiguration configuration)
+        public AuthenticationController(ClinicContext context, UserManager<ApplicationUser> userManager, IConfiguration configuration)
         {
             this.context = context;
             this.userManager = userManager;
@@ -48,40 +48,67 @@ namespace DentalClinic.Controllers
             if (await userManager.FindByNameAsync(model.Name) != null)
                 return BadRequest(new { Error = "Username is already registered!" });
 
-            var user = new ApplicationUser { UserName = model.Email, Email = model.Email, PhoneNumber = model.PhoneNumber };
-            var result = await userManager.CreateAsync(user, model.Password);
-
-            if (result.Succeeded)
+            using (var transaction = await context.Database.BeginTransactionAsync())
             {
-                var patient = new Patient
+                try
                 {
-                    UserId = user.Id,
-                    Name = model.Name,
-                    Gender = model.Gender,
-                    PhoneNumber = model.PhoneNumber,
-                    Address = model.Address
-                };
+                    var user = new ApplicationUser { UserName = model.Email, Email = model.Email, PhoneNumber = model.PhoneNumber };
+                    var result = await userManager.CreateAsync(user, model.Password);
+                    if (result.Succeeded)
+                    {
+                        var patientHistory = new PatientHistory
+                        {
+                            Hypertension = model.Hypertension,
+                            Diabetes = model.Diabetes,
+                            StomachAche = model.StomachAche,
+                            PeriodontalDisease = model.PeriodontalDisease,
+                            IsPregnant = model.IsPregnant,
+                            IsBreastfeeding = model.IsBreastfeeding,
+                            IsSmoking = model.IsSmoking,
+                            KidneyDiseases = model.KidneyDiseases,
+                            HeartDiseases = model.HeartDiseases
+                        };
+                        await context.PatientsHistory.AddAsync(patientHistory);
+                        await context.SaveChangesAsync();
 
-                await context.Patients.AddAsync(patient);
-                await context.SaveChangesAsync();
-                await userManager.AddToRoleAsync(user, "User");
+                        var patient = new Patient
+                        {
+                            UserId = user.Id,
+                            Name = model.Name,
+                            Gender = model.Gender,
+                            PhoneNumber = model.PhoneNumber,
+                            Address = model.Address,
+                            PatientHistoryId = patientHistory.PatientHistoryID
+                            
+                        };
+                        await context.Patients.AddAsync(patient);
+                        await context.SaveChangesAsync();
 
-                JwtSecurityToken token = await GenerateJwtToken(user);
-                AuthenticatoinModel authModel = new AuthenticatoinModel
+
+                        await userManager.AddToRoleAsync(user, "User");
+                        JwtSecurityToken token = await GenerateJwtToken(user);
+                        AuthenticatoinModel authModel = new AuthenticatoinModel
+                        {
+                            Message = "User, patient record, and patient history created successfully",
+                            IsAuthenticated = true,
+                            Username = user.UserName,
+                            Email = user.Email,
+                            Roles = new List<string> { "User" },
+                            Token = new JwtSecurityTokenHandler().WriteToken(token),
+                            ExpiresOn = token.ValidTo
+                        };
+
+                        await transaction.CommitAsync();
+                        return Ok(authModel);
+                    }
+                    return BadRequest(result.Errors);
+                }
+                catch (Exception ex)
                 {
-                    Message = "User and patient record created successfully",
-                    IsAuthenticated = true,
-                    Username = user.UserName,
-                    Email = user.Email,
-                    Roles = new List<string> { "User" },
-                    Token = new JwtSecurityTokenHandler().WriteToken(token),
-                    ExpiresOn = token.ValidTo
-                };
-
-                return Ok(authModel);
+                    await transaction.RollbackAsync();
+                    return StatusCode(500, new { Error = "An error occurred during registration.", Details = ex.Message });
+                }
             }
-
-            return BadRequest(result.Errors);
         }
 
         [HttpPost("login")]

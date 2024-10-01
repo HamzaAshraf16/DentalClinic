@@ -54,6 +54,13 @@ namespace DentalClinic
                     policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
                 });
             });
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowSpecificOrigin",
+                    builder => builder.WithOrigins("http://localhost:4200") 
+                                      .AllowAnyHeader()
+                                      .AllowAnyMethod());
+            });
             // Add services to the container.
 
             builder.Services.AddControllers();
@@ -72,7 +79,7 @@ namespace DentalClinic
 
             app.UseAuthentication();
             app.UseAuthorization();
-
+            app.UseCors("AllowSpecificOrigin");
             app.UseCors("MyCors");
 
             app.MapControllers();
