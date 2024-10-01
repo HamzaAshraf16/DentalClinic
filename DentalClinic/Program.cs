@@ -24,7 +24,7 @@ namespace DentalClinic
                 Options.Password.RequireUppercase = false;
                 Options.Password.RequireDigit = false;
             })
-                .AddEntityFrameworkStores<ClinicContext>();
+                .AddEntityFrameworkStores<ClinicContext>().AddDefaultTokenProviders();
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

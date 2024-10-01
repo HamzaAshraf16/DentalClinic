@@ -343,6 +343,8 @@ namespace DentalClinic.Controllers
             }
         }
 
+
+
         private async Task<JwtSecurityToken> GenerateJwtToken(ApplicationUser user)
         {
             List<Claim> userClaims = new List<Claim>
