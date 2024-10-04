@@ -11,6 +11,8 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using System.Collections.Concurrent;
 using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Crypto.Generators;
+using BCrypt.Net;
 
 namespace DentalClinic.Controllers
 {
@@ -110,7 +112,6 @@ namespace DentalClinic.Controllers
                 }
             }
         }
-
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginModel login)
         {
@@ -119,26 +120,109 @@ namespace DentalClinic.Controllers
                 return BadRequest(ModelState);
             }
 
-            var user = await userManager.FindByEmailAsync(login.Email);
-            if (user == null || !await userManager.CheckPasswordAsync(user, login.Password))
+            // Check if the email and password belong to a Doctor (Admin role)
+            var doctor = await context.Doctors.FirstOrDefaultAsync(d => d.Email == login.Email);
+            if (doctor != null)
+            {
+                // Compare plain text passwords directly
+                if (doctor.Password == login.Password)
+                {
+                    // Create or retrieve a user instance for JWT token generation
+                    var user = new ApplicationUser
+                    {
+                        UserName = doctor.Name, // Assuming there is a Name property for Doctor
+                        Email = doctor.Email
+                    };
+
+                    // Ensure the user has the Admin role
+                    if (!await userManager.IsInRoleAsync(user, "Admin"))
+                    {
+                        await userManager.AddToRoleAsync(user, "Admin");
+                    }
+
+                    // Generate JWT token
+                    JwtSecurityToken token = await GenerateJwtToken(user);
+
+                    // Return successful login with Admin role
+                    return Ok(new AuthenticatoinModel
+                    {
+                        Message = "Login successful",
+                        IsAuthenticated = true,
+                        Username = user.UserName,
+                        Email = user.Email,
+                        Roles = new List<string> { "Admin" },
+                        Token = new JwtSecurityTokenHandler().WriteToken(token),
+                        ExpiresOn = token.ValidTo
+                    });
+                }
+            }
+
+            // Check if the email and password belong to a Branch (Secretary role)
+            var branch = await context.Branchs.FirstOrDefaultAsync(b => b.Email == login.Email);
+            if (branch != null)
+            {
+                // Compare plain text passwords directly
+                if (branch.Password == login.Password)
+                {
+                    // Create or retrieve a user instance for JWT token generation
+                    var user = new ApplicationUser
+                    {
+                        UserName = branch.Name, // Assuming there is a Name property for Branch
+                        Email = branch.Email
+                    };
+
+                    // Ensure the user has the Secretary role
+                    if (!await userManager.IsInRoleAsync(user, "Secretary"))
+                    {
+                        await userManager.AddToRoleAsync(user, "Secretary");
+                    }
+
+                    // Generate JWT token
+                    JwtSecurityToken token = await GenerateJwtToken(user);
+
+                    // Return successful login with Secretary role
+                    return Ok(new AuthenticatoinModel
+                    {
+                        Message = "Login successful",
+                        IsAuthenticated = true,
+                        Username = user.UserName,
+                        Email = user.Email,
+                        Roles = new List<string> { "Secretary" },
+                        Token = new JwtSecurityTokenHandler().WriteToken(token),
+                        ExpiresOn = token.ValidTo
+                    });
+                }
+            }
+
+            // Check if not Doctor or Branch, check if it's a regular User
+            // Check if not Doctor or Branch, check if it's a regular User
+            var userManagerUser = await userManager.FindByEmailAsync(login.Email);
+            if (userManagerUser == null || !await userManager.CheckPasswordAsync(userManagerUser, login.Password))
             {
                 return BadRequest(new { Error = "Invalid email or password." });
             }
 
-            JwtSecurityToken token = await GenerateJwtToken(user);
-            var rolelist = await userManager.GetRolesAsync(user);
-            AuthenticatoinModel authModel = new AuthenticatoinModel
+            // Ensure the user has the User role
+            if (!await userManager.IsInRoleAsync(userManagerUser, "User"))
+            {
+                await userManager.AddToRoleAsync(userManagerUser, "User");
+            }
+
+            // Generate JWT token for regular User
+            JwtSecurityToken defaultToken = await GenerateJwtToken(userManagerUser);
+
+            // Return successful login with User role
+            return Ok(new AuthenticatoinModel
             {
                 Message = "Login successful",
                 IsAuthenticated = true,
-                Username = user.UserName,
-                Email = user.Email,
-                Roles = rolelist.ToList(),
-                Token = new JwtSecurityTokenHandler().WriteToken(token),
-                ExpiresOn = token.ValidTo
-            };
+                Username = userManagerUser.UserName,
+                Email = userManagerUser.Email,
+                Roles = new List<string> { "User" },
+                Token = new JwtSecurityTokenHandler().WriteToken(defaultToken),
+                ExpiresOn = defaultToken.ValidTo
+            });
 
-            return Ok(authModel);
         }
 
         [Authorize]
