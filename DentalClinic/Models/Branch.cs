@@ -19,15 +19,12 @@ namespace DentalClinic.Models
         [StringLength(30)]
         public string Name { get; set; }
 
-        [Required]
-        [EmailAddress]
-        [StringLength(100)]
-        public string Email { get; set; }
+     
 
-        [Required]
-        [StringLength(100)]
-        public string Password { get; set; }
 
         public virtual ICollection<Doctor_Work_Branch> DoctorWorkBranches { get; set; }
+        
+        public string? UserId { get; set; }
+        public virtual ApplicationUser Secretary { get; set; }
     }
 }

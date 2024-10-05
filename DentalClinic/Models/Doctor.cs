@@ -20,9 +20,6 @@ namespace DentalClinic.Models
         [StringLength(100)]
         public string Email { get; set; }
 
-        [Required]
-        [StringLength(100)]
-        public string Password { get; set; }
 
         private string _phoneNumber;
 
@@ -44,5 +41,7 @@ namespace DentalClinic.Models
 
         public virtual ICollection<Doctor_Work_Branch> DoctorWorkBranches { get; set; }
         public virtual ICollection<Appointment> Appointments { get; set; }
+        public string? UserId { get; set; }
+        public virtual ApplicationUser Admin { get; set; }
     }
 }

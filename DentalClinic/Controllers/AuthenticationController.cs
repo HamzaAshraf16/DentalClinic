@@ -12,7 +12,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Collections.Concurrent;
 using Microsoft.EntityFrameworkCore;
 using Org.BouncyCastle.Crypto.Generators;
-using BCrypt.Net;
+using DentalClinic.Models;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 
 namespace DentalClinic.Controllers
 {
@@ -34,7 +35,179 @@ namespace DentalClinic.Controllers
             this.userManager = userManager;
             this._configuration = configuration;
         }
+        [HttpPost("register-doctor")]
+        //[Authorize(Roles = "Admin")] // Only accessible by Admin
+        public async Task<IActionResult> RegisterDoctor(RegisterDoctorModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
+            if (model.Password != model.ConfirmPassword)
+            {
+                return BadRequest(new { Error = "Passwords do not match!" });
+            }
+
+            if (await userManager.FindByEmailAsync(model.Email) != null)
+                return BadRequest(new { Error = "Email is already registered!" });
+
+            if (await userManager.FindByNameAsync(model.Name) != null)
+                return BadRequest(new { Error = "Username is already registered!" });
+
+            using (var transaction = await context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    var user = new ApplicationUser { UserName = model.Email, Email = model.Email, PhoneNumber = model.PhoneNumber };
+                    var result = await userManager.CreateAsync(user, model.Password);
+                    if (result.Succeeded)
+                    {
+                        var doctor = new Doctor
+                        {
+                            UserId = user.Id,
+                            Name = model.Name,
+                            PhoneNumber = model.PhoneNumber,
+                            Email=model.Email
+                        };
+                        await context.Doctors.AddAsync(doctor);
+                        await context.SaveChangesAsync();
+
+                        await userManager.AddToRoleAsync(user, "Admin");
+                        JwtSecurityToken token = await GenerateJwtTokenDashBoard(user, "Admin");
+
+                        var authModel = new AuthenticatoinModel
+                        {
+
+                            Message = "Doctor registered successfully",
+                            IsAuthenticated = true,
+                            Username = user.UserName,
+                            Email = user.Email,
+                            Roles = new List<string> { "Admin" },
+                            Token = new JwtSecurityTokenHandler().WriteToken(token),
+                            ExpiresOn = token.ValidTo
+                        };
+
+                        await transaction.CommitAsync();
+                        return Ok(authModel);
+                    }
+                    return BadRequest(result.Errors);
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    return StatusCode(500, new { Error = "An error occurred during registration.", Details = ex.Message });
+                }
+            }
+        }
+        [HttpPost("register-branch")]
+        //[Authorize(Roles = "Secretary")] // Only accessible by Secretary
+        public async Task<IActionResult> RegisterBranch(RegisterBranchModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (model.Password != model.ConfirmPassword)
+            {
+                return BadRequest(new { Error = "Passwords do not match!" });
+            }
+
+            if (await userManager.FindByEmailAsync(model.Email) != null)
+                return BadRequest(new { Error = "Email is already registered!" });
+            using (var transaction = await context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    var user = new ApplicationUser { UserName = model.Email, Email = model.Email, PhoneNumber = model.PhoneNumber };
+                    var result = await userManager.CreateAsync(user, model.Password);
+                    if (result.Succeeded)
+                    {
+                        var branch = new Branch
+                        {
+                            UserId = user.Id,
+                            Name = model.Name,
+                            Location = model.Location
+                        };
+
+                        await context.Branchs.AddAsync(branch);
+                        await context.SaveChangesAsync();
+
+                        await userManager.AddToRoleAsync(user, "Secretary");
+                        JwtSecurityToken token = await GenerateJwtTokenDashBoard(user, "Admin");
+                        var authModel = new AuthenticatoinModel
+                        {
+                            Message = "Secretary registered successfully",
+                            IsAuthenticated = true,
+                            Username = user.UserName,
+                            Email = user.Email,
+                            Roles = new List<string> { "Secretary" },
+                            Token = new JwtSecurityTokenHandler().WriteToken(token),
+                            ExpiresOn = token.ValidTo
+                        };
+                        await transaction.CommitAsync();
+                        return Ok(authModel);
+                    }
+                    return BadRequest(result.Errors);
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    return StatusCode(500, new { Error = "An error occurred during registration.", Details = ex.Message });
+                }
+            }
+        }
+
+
+        // Login for both Doctor and Secretary with dashboard access
+        [HttpPost("login-dashboard")]
+        public async Task<IActionResult> LoginDashboard(LoginModel login)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var user = await userManager.FindByEmailAsync(login.Email);
+            if (user == null || !await userManager.CheckPasswordAsync(user, login.Password))
+            {
+                return BadRequest(new { Error = "Invalid email or password." });
+            }
+
+            var roles = await userManager.GetRolesAsync(user);
+            if (roles.Contains("Admin"))
+            {
+                JwtSecurityToken doctorToken = await GenerateJwtTokenDashBoard(user, "Admin");
+                return Ok(new AuthenticatoinModel
+                {
+                    Message = "Login successful",
+                    IsAuthenticated = true,
+                    Username = user.UserName,
+                    Email = user.Email,
+                    Roles = roles.ToList(),
+                    Token = new JwtSecurityTokenHandler().WriteToken(doctorToken),
+                    ExpiresOn = doctorToken.ValidTo
+                });
+            }
+
+            if (roles.Contains("Secretary"))
+            {
+                JwtSecurityToken secretaryToken = await GenerateJwtTokenDashBoard(user, "Secretary");
+                return Ok(new AuthenticatoinModel
+                {
+                    Message = "Login successful",
+                    IsAuthenticated = true,
+                    Username = user.UserName,
+                    Email = user.Email,
+                    Roles = roles.ToList(),
+                    Token = new JwtSecurityTokenHandler().WriteToken(secretaryToken),
+                    ExpiresOn = secretaryToken.ValidTo
+                });
+            }
+
+            return Unauthorized(new { Error = "Unauthorized user role." });
+        }
         // Other methods...
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterModel model)
@@ -112,6 +285,8 @@ namespace DentalClinic.Controllers
                 }
             }
         }
+
+
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginModel login)
         {
@@ -120,82 +295,7 @@ namespace DentalClinic.Controllers
                 return BadRequest(ModelState);
             }
 
-            // Check if the email and password belong to a Doctor (Admin role)
-            var doctor = await context.Doctors.FirstOrDefaultAsync(d => d.Email == login.Email);
-            if (doctor != null)
-            {
-                // Compare plain text passwords directly
-                if (doctor.Password == login.Password)
-                {
-                    // Create or retrieve a user instance for JWT token generation
-                    var user = new ApplicationUser
-                    {
-                        UserName = doctor.Name, // Assuming there is a Name property for Doctor
-                        Email = doctor.Email
-                    };
-
-                    // Ensure the user has the Admin role
-                    if (!await userManager.IsInRoleAsync(user, "Admin"))
-                    {
-                        await userManager.AddToRoleAsync(user, "Admin");
-                    }
-
-                    // Generate JWT token
-                    JwtSecurityToken token = await GenerateJwtToken(user);
-
-                    // Return successful login with Admin role
-                    return Ok(new AuthenticatoinModel
-                    {
-                        Message = "Login successful",
-                        IsAuthenticated = true,
-                        Username = user.UserName,
-                        Email = user.Email,
-                        Roles = new List<string> { "Admin" },
-                        Token = new JwtSecurityTokenHandler().WriteToken(token),
-                        ExpiresOn = token.ValidTo
-                    });
-                }
-            }
-
-            // Check if the email and password belong to a Branch (Secretary role)
-            var branch = await context.Branchs.FirstOrDefaultAsync(b => b.Email == login.Email);
-            if (branch != null)
-            {
-                // Compare plain text passwords directly
-                if (branch.Password == login.Password)
-                {
-                    // Create or retrieve a user instance for JWT token generation
-                    var user = new ApplicationUser
-                    {
-                        UserName = branch.Name, // Assuming there is a Name property for Branch
-                        Email = branch.Email
-                    };
-
-                    // Ensure the user has the Secretary role
-                    if (!await userManager.IsInRoleAsync(user, "Secretary"))
-                    {
-                        await userManager.AddToRoleAsync(user, "Secretary");
-                    }
-
-                    // Generate JWT token
-                    JwtSecurityToken token = await GenerateJwtToken(user);
-
-                    // Return successful login with Secretary role
-                    return Ok(new AuthenticatoinModel
-                    {
-                        Message = "Login successful",
-                        IsAuthenticated = true,
-                        Username = user.UserName,
-                        Email = user.Email,
-                        Roles = new List<string> { "Secretary" },
-                        Token = new JwtSecurityTokenHandler().WriteToken(token),
-                        ExpiresOn = token.ValidTo
-                    });
-                }
-            }
-
-            // Check if not Doctor or Branch, check if it's a regular User
-            // Check if not Doctor or Branch, check if it's a regular User
+            // Check if the user exists in the system
             var userManagerUser = await userManager.FindByEmailAsync(login.Email);
             if (userManagerUser == null || !await userManager.CheckPasswordAsync(userManagerUser, login.Password))
             {
@@ -222,8 +322,8 @@ namespace DentalClinic.Controllers
                 Token = new JwtSecurityTokenHandler().WriteToken(defaultToken),
                 ExpiresOn = defaultToken.ValidTo
             });
-
         }
+
 
         [Authorize]
         [HttpPost("ChangePassword")]
@@ -454,7 +554,29 @@ namespace DentalClinic.Controllers
             }
         }
 
+        private async Task<JwtSecurityToken> GenerateJwtTokenDashBoard(ApplicationUser user, string role)
+        {
+            List<Claim> userClaims = new List<Claim>
+            {
+                new Claim(JwtRegisteredClaimNames.Name, user.UserName),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(ClaimTypes.Role, role)
+            };
 
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Key"]));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            JwtSecurityToken token = new JwtSecurityToken(
+                issuer: _configuration["JWT:issuer"],
+                audience: _configuration["JWT:audience"],
+                claims: userClaims,
+                expires: DateTime.Now.AddDays(15),
+                signingCredentials: creds
+            );
+
+            return token;
+        }
 
         private async Task<JwtSecurityToken> GenerateJwtToken(ApplicationUser user)
         {
