@@ -67,20 +67,20 @@ namespace DentalClinic.Models
         }
 
 
-        private int _type;
-        [Required]
-        [Range(0, 2)]// كشف=0   , اعاده=1 , جلسه=2
-        public int Type
-        {
-            get { return _type; }
-            set
-            {
-                if (value >= 0 && value <= 2)
-                    _type = value;
-                else
-                    _type = 0;
-            }
-        }
+       private int _type;
+       [Required]
+       [Range(0, 9)]// كشف=0   , اعاده=1 , تجميل=2   ,  زراعه=3  , علاج الجذور وحشو العصب=4 , حشو عادي=5  ,تقويم =6 , امراض و تجميل اللثه=7  , جراحه الوجه و الفكين =8 ,معمل الاسنان=9
+       public int Type
+       {
+          get { return _type; }
+          set
+         {
+           if (value >= 0 && value <= 9)
+             _type = value;
+           else
+             _type = 0;
+         }
+       }
 
 
         [ForeignKey("Doctor")]
