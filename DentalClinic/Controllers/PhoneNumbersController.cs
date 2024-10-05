@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DentalClinic.DTO;
 using Microsoft.CodeAnalysis.Operations;
+using Humanizer;
 
 namespace DentalClinic.Controllers
 {
@@ -20,25 +21,17 @@ namespace DentalClinic.Controllers
             context = _context;
         }
 
-        // GET: api/PhoneNumbers
         [HttpGet]
-        public IActionResult GetPhoneNumbers()
+        public IActionResult GetAllPhoneNumbers()
         {
             var phoneNumbers = context.PhoneNumbers
                                       .Include(p => p.Branch)
-                                      .Select(p => new PhoneNumberDto
+                                      .Select(p => new
                                       {
                                           Phonenumber = p.Phonenumber,
-<<<<<<< HEAD
-                                          BranchID = p.BranchID,
-                                          location = p.Branch.Location,
-                                          BranchName = p.Branch.Name
-=======
-                                          BranchID=p.BranchID,
                                           BranchName = p.Branch.Name,
+                                          BranchID = p.BranchID,
                                           BranchLocation = p.Branch.Location,
-
->>>>>>> b8a636330d9b86b565486406fe7823144c752b09
                                       })
                                       .ToList();
 
@@ -49,40 +42,22 @@ namespace DentalClinic.Controllers
             return Ok(phoneNumbers);
         }
 
-        // GET: api/PhoneNumbers/5
-        [HttpGet("{id}")]
-        public IActionResult GetPhoneNumber(int id)
-        {
-            var phoneNumber = context.PhoneNumbers
-                                     .Include(p => p.Branch)
-                                     .Where(p => p.Id == id)
-                                     .Select(p => new PhoneNumberDto
-                                     {
-                                         Phonenumber = p.Phonenumber,
-                                         BranchID = p.BranchID,
-                                         location = p.Branch.Location,
-                                         BranchName = p.Branch.Name
-                                     })
-                                     .FirstOrDefault();
 
-            if (phoneNumber == null)
-            {
-                return NotFound(new { message = "رقم الهاتف غير موجود" });
-            }
-
-<<<<<<< HEAD
-            return Ok(phoneNumber);
-        }
-
-        // POST: api/PhoneNumbers
         [HttpPost]
-        public IActionResult PostPhoneNumber([FromBody] PhoneNumberDto phoneNumberDto)
-=======
-            // Validate model state
-            if (!ModelState.IsValid)
+        public IActionResult AddPhoneNumber([FromBody] PhoneNumberDto dto)
+        {
+            if (dto == null)
             {
-                return BadRequest(ModelState);
+                return BadRequest("بيانات الهاتف غير صالحة");
             }
+
+            if (dto.BranchID <= 0)
+                // Validate model state
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(" رقم id  خطأ ");
+                    return BadRequest(ModelState);
+                }
 
             // Check if the branch exists
             var branchExists = context.Branchs.Any(b => b.BranchId == dto.BranchID);
@@ -101,6 +76,7 @@ namespace DentalClinic.Controllers
             context.PhoneNumbers.Add(phoneNumber);
             context.SaveChanges();
 
+            return CreatedAtAction(nameof(GetAllPhoneNumbers), new { id = phoneNumber.Phonenumber }, phoneNumber);
             // Return the created phone number
             return CreatedAtAction(nameof(GetAllPhoneNumbers), new { id = phoneNumber.Phonenumber }, new
             {
@@ -109,87 +85,60 @@ namespace DentalClinic.Controllers
             });
         }
 
-
-
-
         [HttpPut("{id}")]
         public IActionResult UpdatePhoneNumber(int id, [FromBody] PhoneNumberDto dto)
->>>>>>> b8a636330d9b86b565486406fe7823144c752b09
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var branch = context.Branchs.Find(phoneNumberDto.BranchID);
-            if (branch == null)
+            var phoneNumber = context.PhoneNumbers
+                .Include(p => p.Branch)
+                .FirstOrDefault(p => p.Id == id);
+
+            if (phoneNumber == null)
             {
-                return BadRequest(new { message = "الفرع غير موجود" });
+                return NotFound("رقم الهاتف غير موجود.");
             }
 
-            var phoneNumber = new PhoneNumber
+
+            phoneNumber.Phonenumber = dto.Phonenumber;
+            phoneNumber.BranchID = dto.BranchID;
+
+            var response = new
             {
-                Phonenumber = phoneNumberDto.Phonenumber,
-                BranchID = phoneNumberDto.BranchID
+                phoneNumber.Id,
+                phoneNumber.Phonenumber,
+                phoneNumber.BranchID,
+                branchName = phoneNumber.Branch?.Name
             };
 
-            context.PhoneNumbers.Add(phoneNumber);
-            context.SaveChanges();
-
-            return CreatedAtAction(nameof(GetPhoneNumber), new { id = phoneNumber.Id }, phoneNumberDto);
+            return Ok(response);
         }
 
-        // PUT: api/PhoneNumbers/5
-        [HttpPut("{id}")]
-        public IActionResult PutPhoneNumber(int id, [FromBody] PhoneNumberDto phoneNumberDto)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
 
-            var phoneNumber = context.PhoneNumbers.Find(id);
+        [HttpDelete("{phonenumber}")]
+        public IActionResult DeletePhoneNumber(string phonenumber)
+        {
+            var phoneNumber = context.PhoneNumbers.FirstOrDefault(p => p.Phonenumber == phonenumber);
             if (phoneNumber == null)
             {
-                return NotFound(new { message = "رقم الهاتف غير موجود" });
-            }
-
-            var branch = context.Branchs.Find(phoneNumberDto.BranchID);
-            if (branch == null)
-            {
-                return BadRequest(new { message = "الفرع غير موجود" });
-            }
-
-            phoneNumber.Phonenumber = phoneNumberDto.Phonenumber;
-            phoneNumber.BranchID = phoneNumberDto.BranchID;
-
-            context.SaveChanges();
-
-            return NoContent();
-        }
-
-        // DELETE: api/PhoneNumbers/5
-        [HttpDelete("{id}")]
-        public IActionResult DeletePhoneNumber(int id)
-        {
-            var phoneNumber = context.PhoneNumbers.Find(id);
-            if (phoneNumber == null)
-            {
-                return NotFound(new { message = "رقم الهاتف غير موجود" });
+                return NotFound("رقم الهاتف غير موجود.");
             }
 
             context.PhoneNumbers.Remove(phoneNumber);
             context.SaveChanges();
 
-            return Ok(new { message = "تم حذف رقم الهاتف بنجاح" });
+            return Ok("تم حذف رقم الهاتف بنجاح.");
         }
 
 
+
     }
-
-
-
 }
+
+
 
 
 
