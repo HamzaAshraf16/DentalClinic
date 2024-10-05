@@ -33,7 +33,10 @@ namespace DentalClinic.Controllers
                     Reports = a.Reports,
                     Type = a.Type,
                     DoctorName = a.Doctor.Name,
-                    PatientName = a.Patient.Name
+                    PatientName = a.Patient.Name,
+                    PatientPhoneNumber=a.Patient.PhoneNumber,
+                    PatientGender=a.Patient.Gender,
+                    PatientAge=a.Patient.Age
                 })
                 .ToListAsync();
 
@@ -57,7 +60,10 @@ namespace DentalClinic.Controllers
                     Reports = a.Reports,
                     Type = a.Type,
                     DoctorName = a.Doctor.Name,
-                    PatientName = a.Patient.Name
+                    PatientName = a.Patient.Name,
+                    PatientPhoneNumber=a.Patient.PhoneNumber,
+                    PatientGender=a.Patient.Gender,
+                    PatientAge=a.Patient.Age
                 })
                 .FirstOrDefaultAsync();
 

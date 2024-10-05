@@ -25,6 +25,10 @@ namespace DentalClinic.Models
         public byte Gender { get; set; }
 
         [Required]
+        [Range(0, 100)]
+        public int? Age { get; set; }
+
+        [Required]
         [RegularExpression(@"^(?:\+20|0)?1[0125]\d{8}$", ErrorMessage = "عليك إدخال رقم هاتف مصري مكون من 11 رقم ")]
         public string PhoneNumber { get; set; }
 
