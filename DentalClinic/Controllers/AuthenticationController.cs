@@ -253,6 +253,7 @@ namespace DentalClinic.Controllers
                             Gender = model.Gender,
                             PhoneNumber = model.PhoneNumber,
                             Address = model.Address,
+                            Age=model.Age,
                             PatientHistoryId = patientHistory.PatientHistoryID
                             
                         };
