@@ -9,12 +9,18 @@ namespace DentalClinic.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int DoctorId { get; set; } // Primary Key
-        
+
         [Required]
         [Column(TypeName = "nvarchar")]
         [StringLength(50)]
-        public string Name { get; set; } 
- 
+        public string Name { get; set; }
+
+        [Required]
+        [EmailAddress]
+        [StringLength(100)]
+        public string Email { get; set; }
+
+
         private string _phoneNumber;
 
         [Required(ErrorMessage = "من فضلك ادخل رقم الهاتف")]
@@ -25,7 +31,6 @@ namespace DentalClinic.Models
             get { return _phoneNumber; }
             set
             {
-                // Validation logic
                 if (!Regex.IsMatch(value, @"^(?:\+20|0)?1[0125]\d{8}$"))
                 {
                     throw new ArgumentException("عليك إدخال رقم هاتف مصري مكون من 11 رقم");
@@ -36,9 +41,7 @@ namespace DentalClinic.Models
 
         public virtual ICollection<Doctor_Work_Branch> DoctorWorkBranches { get; set; }
         public virtual ICollection<Appointment> Appointments { get; set; }
-
-
+        public string? UserId { get; set; }
+        public virtual ApplicationUser Admin { get; set; }
     }
-
 }
-
