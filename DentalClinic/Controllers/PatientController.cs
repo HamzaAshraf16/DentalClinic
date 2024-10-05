@@ -31,6 +31,7 @@ namespace DentalClinic.Controllers
                     Gender = p.Gender,
                     PhoneNumber = p.PhoneNumber,
                     Address = p.Address,
+                    Age=p.Age,
                     Hypertension = p.PatientHistory.Hypertension,
                     Diabetes = p.PatientHistory.Diabetes,
                     StomachAche =  p.PatientHistory.StomachAche,
@@ -60,6 +61,7 @@ namespace DentalClinic.Controllers
                                             Gender = p.Gender,
                                             PhoneNumber = p.PhoneNumber,
                                             Address = p.Address,
+                                            Age = p.Age,
                                             Hypertension = p.PatientHistory.Hypertension,
                                             Diabetes = p.PatientHistory.Diabetes,
                                             StomachAche = p.PatientHistory.StomachAche,
@@ -93,6 +95,7 @@ namespace DentalClinic.Controllers
                                             Gender = p.Gender,
                                             PhoneNumber = p.PhoneNumber,
                                             Address = p.Address,
+                                            Age = p.Age,
                                             Hypertension = p.PatientHistory.Hypertension,
                                             Diabetes = p.PatientHistory.Diabetes,
                                             StomachAche = p.PatientHistory.StomachAche,
@@ -140,6 +143,7 @@ namespace DentalClinic.Controllers
             existingPatient.Gender = patientDto.Gender;
             existingPatient.PhoneNumber = patientDto.PhoneNumber;
             existingPatient.Address = patientDto.Address;
+            existingPatient.Age= patientDto.Age;
 
           
             if (existingPatient.PatientHistory != null)
@@ -197,6 +201,7 @@ namespace DentalClinic.Controllers
                 Gender = newPatientDto.Gender,
                 PhoneNumber = newPatientDto.PhoneNumber,
                 Address = newPatientDto.Address,
+                Age=newPatientDto.Age,
                 PatientHistoryId = newPatientDto.PatientHistoryId
             };
 
