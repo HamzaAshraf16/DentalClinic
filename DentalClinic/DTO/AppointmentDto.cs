@@ -19,6 +19,8 @@ namespace DentalClinic.DTO
         public string PatientPhoneNumber { get; set; }
         public int? PatientAge { get; set; }
         public byte PatientGender { get; set; }
+        public int PatientId { get; set; }
+
         
     }
 }
