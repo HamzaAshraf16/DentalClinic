@@ -36,7 +36,8 @@ namespace DentalClinic.Controllers
                     PatientName = a.Patient.Name,
                     PatientPhoneNumber=a.Patient.PhoneNumber,
                     PatientGender=a.Patient.Gender,
-                    PatientAge=a.Patient.Age
+                    PatientAge=a.Patient.Age,
+                    PatientId=a.Patient.PatientId
                 })
                 .ToListAsync();
 
