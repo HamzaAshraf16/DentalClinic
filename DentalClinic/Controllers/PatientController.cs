@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using DentalClinic.Models;
 using DentalClinic.DTO;
 using Microsoft.CodeAnalysis.Scripting;
+using System.Security.Claims;
 
 namespace DentalClinic.Controllers
 {
