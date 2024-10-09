@@ -47,6 +47,47 @@ namespace DentalClinic.Controllers
             return Ok(patients);
         }
 
+         [HttpGet("GetLoggedInPatientProfile")]
+ public async Task<ActionResult<PatientDto>> GetLoggedInPatientProfile()
+ {
+     var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+     if (userId == null)
+     {
+         return Unauthorized(); 
+     }
+
+     var patient = await _context.Patients
+         .Include(p => p.PatientHistory)
+         .Where(p => p.UserId == userId) 
+         .Select(p => new PatientDto
+         {
+             PatientId = p.PatientId,
+             Name = p.Name,
+             Gender = p.Gender,
+             PhoneNumber = p.PhoneNumber,
+             Address = p.Address,
+             Age = p.Age,
+             Hypertension = p.PatientHistory.Hypertension,
+             Diabetes = p.PatientHistory.Diabetes,
+             StomachAche = p.PatientHistory.StomachAche,
+             PeriodontalDisease = p.PatientHistory.PeriodontalDisease,
+             IsPregnant = p.PatientHistory.IsPregnant,
+             IsBreastfeeding = p.PatientHistory.IsBreastfeeding,
+             IsSmoking = p.PatientHistory.IsSmoking,
+             KidneyDiseases = p.PatientHistory.KidneyDiseases,
+             HeartDiseases = p.PatientHistory.HeartDiseases
+         })
+         .FirstOrDefaultAsync(); 
+
+     if (patient == null)
+     {
+         return NotFound(); 
+     }
+
+     return Ok(patient); 
+ }
+
         
         [HttpGet("{id}")]
         public async Task<ActionResult<PatientDto>> GetPatientById(int id)
