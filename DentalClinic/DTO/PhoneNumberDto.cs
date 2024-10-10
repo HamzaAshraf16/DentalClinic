@@ -11,18 +11,6 @@ namespace DentalClinic.DTO
 
         [Required]
         public int BranchID { get; set; }
-<<<<<<< HEAD
-
-        [Required(ErrorMessage = "Lacation is required")]
-        [Column(TypeName = "nvarchar")]
-        [StringLength(30)]
-        public string location {  get; set; }
-
-        [Required(ErrorMessage = "BranchName is required")]
-        [Column(TypeName = "nvarchar")]
-        [StringLength(30)]
-        public string BranchName {  get; set; }
-=======
         [Required(ErrorMessage = "Lacation is required")]
         [Column(TypeName = "nvarchar")]
         [StringLength(100)]
@@ -32,7 +20,6 @@ namespace DentalClinic.DTO
         [Column(TypeName = "nvarchar")]
         [StringLength(30)]
         public string BranchName { get; set; }
->>>>>>> b8a636330d9b86b565486406fe7823144c752b09
     }
 }
 

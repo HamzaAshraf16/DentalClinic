@@ -29,16 +29,10 @@ namespace DentalClinic.Controllers
                                       .Select(p => new PhoneNumberDto
                                       {
                                           Phonenumber = p.Phonenumber,
-<<<<<<< HEAD
-                                          BranchID = p.BranchID,
-                                          location = p.Branch.Location,
-                                          BranchName = p.Branch.Name
-=======
                                           BranchID=p.BranchID,
                                           BranchName = p.Branch.Name,
                                           BranchLocation = p.Branch.Location,
 
->>>>>>> b8a636330d9b86b565486406fe7823144c752b09
                                       })
                                       .ToList();
 
@@ -60,7 +54,7 @@ namespace DentalClinic.Controllers
                                      {
                                          Phonenumber = p.Phonenumber,
                                          BranchID = p.BranchID,
-                                         location = p.Branch.Location,
+                                         BranchLocation = p.Branch.Location,
                                          BranchName = p.Branch.Name
                                      })
                                      .FirstOrDefault();
@@ -70,51 +64,12 @@ namespace DentalClinic.Controllers
                 return NotFound(new { message = "رقم الهاتف غير موجود" });
             }
 
-<<<<<<< HEAD
             return Ok(phoneNumber);
         }
 
         // POST: api/PhoneNumbers
         [HttpPost]
         public IActionResult PostPhoneNumber([FromBody] PhoneNumberDto phoneNumberDto)
-=======
-            // Validate model state
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            // Check if the branch exists
-            var branchExists = context.Branchs.Any(b => b.BranchId == dto.BranchID);
-            if (!branchExists)
-            {
-                return BadRequest("الفرع غير موجود");
-            }
-
-            // Create and add the new phone number
-            var phoneNumber = new PhoneNumber
-            {
-                Phonenumber = dto.Phonenumber,
-                BranchID = dto.BranchID
-            };
-
-            context.PhoneNumbers.Add(phoneNumber);
-            context.SaveChanges();
-
-            // Return the created phone number
-            return CreatedAtAction(nameof(GetAllPhoneNumbers), new { id = phoneNumber.Phonenumber }, new
-            {
-                phoneNumber.Phonenumber,
-                BranchName = dto.BranchName
-            });
-        }
-
-
-
-
-        [HttpPut("{id}")]
-        public IActionResult UpdatePhoneNumber(int id, [FromBody] PhoneNumberDto dto)
->>>>>>> b8a636330d9b86b565486406fe7823144c752b09
         {
             if (!ModelState.IsValid)
             {

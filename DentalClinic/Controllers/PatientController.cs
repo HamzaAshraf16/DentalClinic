@@ -39,7 +39,8 @@ namespace DentalClinic.Controllers
                     IsBreastfeeding=p.PatientHistory.IsBreastfeeding,
                     IsSmoking=p.PatientHistory.IsSmoking,
                     KidneyDiseases=p.PatientHistory.KidneyDiseases,
-                    HeartDiseases=p.PatientHistory.HeartDiseases
+                    HeartDiseases=p.PatientHistory.HeartDiseases,
+                    UserId = p.UserId
                 })
                 .ToListAsync();
 

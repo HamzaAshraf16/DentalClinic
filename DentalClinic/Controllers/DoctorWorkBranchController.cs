@@ -39,10 +39,10 @@ namespace DentalClinic.Controllers
         }
 
 
-        [HttpGet("{id:int}")]
-        public async Task<ActionResult> GetDoctorWorkBranch(int id)
+        [HttpGet("{id:int},{branchid:int}")]
+        public async Task<ActionResult> GetDoctorWorkBranch(int id,int branchid)
         {
-            if (id == null) 
+            if (id == null)
             {
                 return BadRequest(new { message = "the id is required" });
             }
@@ -51,7 +51,7 @@ namespace DentalClinic.Controllers
                 var doctorWorkBranch = await _context.DoctorWorkBranchs
                .Include(dw => dw.Doctor)
                .Include(dw => dw.Branch)
-               .Where(dw => dw.DoctorWorkBranchId == id)
+               .Where(dw => dw.DoctorID == id && dw.BranchID == branchid)
                .Select(dw => new BranchInfoandDoctor
                {
                    DoctorWorkBranchId = dw.DoctorWorkBranchId,
@@ -71,7 +71,7 @@ namespace DentalClinic.Controllers
 
                 return Ok(doctorWorkBranch);
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 return StatusCode(500, new { message = "An error occurred while retrieving data.", error = ex.Message });
 
@@ -80,6 +80,45 @@ namespace DentalClinic.Controllers
         }
 
 
+        [HttpGet("{doctorname:alpha},{day:alpha}")]
+        public async Task<ActionResult> GetDoctorWorkBranch(string doctorname, string day)
+        {
+            if (doctorname == null || day == null)
+            {
+                return BadRequest(new { message = "the id is required" });
+            }
+            try
+            {
+                var doctorWorkBranch = await _context.DoctorWorkBranchs
+               .Include(dw => dw.Doctor)
+               .Include(dw => dw.Branch)
+               .Where(dw => dw.Doctor.Name == doctorname && dw.Day == day)
+               .Select(dw => new BranchInfoandDoctor
+               {
+                   DoctorWorkBranchId = dw.DoctorWorkBranchId,
+                   Day = dw.Day,
+                   IsWork = dw.IsWork,
+                   StartTime = dw.StartTime,
+                   EndTime = dw.EndTime,
+                   BranchName = dw.Branch.Name,
+                   DoctorName = dw.Doctor.Name,
+               })
+               .FirstOrDefaultAsync();
+
+                if (doctorWorkBranch == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(doctorWorkBranch);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while retrieving data.", error = ex.Message });
+
+            }
+
+        }
 
         [HttpPut("{id:int}")]
         public async Task<IActionResult> UpdateDoctorWorkBranch(int id, BranchInfoandDoctor dto)

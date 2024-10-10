@@ -378,13 +378,12 @@ namespace DentalClinic.Controllers
             {
                 new Claim(JwtRegisteredClaimNames.Name, user.UserName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.NameIdentifier, user.Id)
-            };
+                new Claim("nameidentifier", user.Id)};
 
             var roles = await userManager.GetRolesAsync(user);
             foreach (var role in roles)
             {
-                userClaims.Add(new Claim(ClaimTypes.Role, role));
+                userClaims.Add(new Claim("role", role));
             }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Key"]));

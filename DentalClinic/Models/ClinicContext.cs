@@ -19,7 +19,6 @@ namespace DentalClinic.Models
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 
-            // تعديل خصائص PatientHistory
             modelBuilder.Entity<PatientHistory>(entity =>
             {
                 entity.Property(p => p.Hypertension)
@@ -85,6 +84,7 @@ namespace DentalClinic.Models
             .WithOne(ph => ph.Patient)
             .HasForeignKey<Patient>(p => p.PatientHistoryId)
             .OnDelete(DeleteBehavior.Cascade);
+
             base.OnModelCreating(modelBuilder);
         }
     }
