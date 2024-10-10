@@ -43,6 +43,36 @@ namespace DentalClinic.Controllers
 
             return Ok(appointments);
         }
+         [HttpGet("patient/{patientId}")]
+ public async Task<ActionResult<IEnumerable<AppointmentDto>>> GetAppointmentsForPatient(int patientId)
+ {
+     var appointments = await _context.Appointments
+         .Where(a => a.PatientId == patientId)
+         .Include(a => a.Doctor)
+         .Include(a => a.Patient)
+         .Select(a => new AppointmentDto
+         {
+             AppointmentId = a.AppointmentId,
+             Cost = a.Cost,
+             Time = a.Time.ToString(),
+             Date = a.Date,
+             Reports = a.Reports,
+             Type = a.Type,
+             DoctorName = a.Doctor.Name,
+             PatientName = a.Patient.Name,
+             PatientPhoneNumber = a.Patient.PhoneNumber,
+             PatientGender = a.Patient.Gender,
+             PatientAge = a.Patient.Age
+         })
+         .ToListAsync();
+
+     if (appointments == null || !appointments.Any())
+     {
+         return NotFound("No appointments found for the user.");
+     }
+
+     return Ok(appointments);
+ }
 
 
         [HttpGet("{id}")]
