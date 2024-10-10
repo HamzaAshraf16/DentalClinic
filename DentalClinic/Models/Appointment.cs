@@ -8,6 +8,11 @@ using System.Threading.Tasks;
 
 namespace DentalClinic.Models
 {
+    public enum AppointmentStatus
+    {
+        Upcoming = 0,
+        Attended = 1,
+    }
     [Table("Appointment")]
     public class Appointment
     {
@@ -82,7 +87,11 @@ namespace DentalClinic.Models
          }
        }
 
-
+        
+    [Required]
+    [Column(TypeName = "int")]
+    public AppointmentStatus Status { get; set; } = AppointmentStatus.Upcoming;
+        
         [ForeignKey("Doctor")]
         public int DoctorId { get; set; }
         public virtual Doctor Doctor { get; set; }
