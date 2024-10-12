@@ -37,12 +37,46 @@ namespace DentalClinic.Controllers
                     PatientId=a.PatientId,
                     PatientPhoneNumber=a.Patient.PhoneNumber,
                     PatientGender=a.Patient.Gender,
-                    PatientAge=a.Patient.Age
+                    PatientAge=a.Patient.Age,
+                    PatientId=a.Patient.PatientId,
+                    DoctorId=a.DoctorId,
+                    Status = (int)a.Status
                 })
                 .ToListAsync();
 
             return Ok(appointments);
         }
+         [HttpGet("patient/{patientId}")]
+ public async Task<ActionResult<IEnumerable<AppointmentDto>>> GetAppointmentsForPatient(int patientId)
+ {
+     var appointments = await _context.Appointments
+         .Where(a => a.PatientId == patientId)
+         .Include(a => a.Doctor)
+         .Include(a => a.Patient)
+         .Select(a => new AppointmentDto
+         {
+             AppointmentId = a.AppointmentId,
+             Cost = a.Cost,
+             Time = a.Time.ToString(),
+             Date = a.Date,
+             Reports = a.Reports,
+             Type = a.Type,
+             DoctorName = a.Doctor.Name,
+             PatientName = a.Patient.Name,
+             PatientPhoneNumber = a.Patient.PhoneNumber,
+             PatientGender = a.Patient.Gender,
+             PatientAge = a.Patient.Age,
+             Status = (int)a.Status
+         })
+         .ToListAsync();
+
+     if (appointments == null || !appointments.Any())
+     {
+         return NotFound("No appointments found for the user.");
+     }
+
+     return Ok(appointments);
+ }
 
 
         [HttpGet("{id}")]
@@ -64,7 +98,8 @@ namespace DentalClinic.Controllers
                     PatientName = a.Patient.Name,
                     PatientPhoneNumber=a.Patient.PhoneNumber,
                     PatientGender=a.Patient.Gender,
-                    PatientAge=a.Patient.Age
+                    PatientAge=a.Patient.Age,
+                    Status = (int)a.Status
                 })
                 .FirstOrDefaultAsync();
 
@@ -78,6 +113,7 @@ namespace DentalClinic.Controllers
 
 
         [HttpPost]
+<<<<<<< HEAD
         public async Task<ActionResult<AppointmentDto>> ADD(AppointmentDto appointmentDto)
         {
 
@@ -124,6 +160,58 @@ namespace DentalClinic.Controllers
             return CreatedAtAction("GetAppointment", new { id = appointment.AppointmentId }, resultDto);
         }
 
+=======
+    public async Task<ActionResult<AppointmentDto>> ADD(AppointmentDto appointmentDto)
+    {
+
+        var doctor = await _context.Doctors.FirstOrDefaultAsync(d => d.Name == appointmentDto.DoctorName);
+        if (doctor == null)
+        {
+            return BadRequest("Doctor not found");
+        }
+
+        var patient = await _context.Patients.FirstOrDefaultAsync(p => p.PatientId == appointmentDto.PatientId);
+        if (patient == null)
+        {
+            return BadRequest("Patient not found");
+        }
+        if (!TimeSpan.TryParse(appointmentDto.Time, out var time))
+        {
+            return BadRequest("Invalid time format");
+        }
+
+        var appointment = new Appointment
+        {
+            Cost = appointmentDto.Cost,
+            Time = time,
+            Date = appointmentDto.Date,
+            Reports = appointmentDto.Reports,
+            Type = appointmentDto.Type,
+            Status = (AppointmentStatus)appointmentDto.Status,
+            DoctorId = doctor.DoctorId,
+            PatientId = patient.PatientId,
+        
+        };
+
+        _context.Appointments.Add(appointment);
+        await _context.SaveChangesAsync();
+        var resultDto = new AppointmentDto
+        {
+            AppointmentId = appointment.AppointmentId,
+            Cost = appointment.Cost,
+            Time = appointment.Time.ToString(), 
+            Date = appointment.Date,
+            Reports = appointment.Reports,
+            Type = appointment.Type,
+            DoctorName = doctor.Name,  
+            PatientName = patient.Name 
+        };
+
+        return CreatedAtAction("GetAppointment", new { id = appointment.AppointmentId }, resultDto);
+    }
+
+
+>>>>>>> 3d4f2c73446664909d3399c98c7db24e198350f8
         [HttpPut("{id}")]
         public async Task<IActionResult> Edit(int id, AppointmentDto appointmentDto)
         {
@@ -157,6 +245,7 @@ namespace DentalClinic.Controllers
             appointment.Type = appointmentDto.Type;
             appointment.DoctorId = doctor.DoctorId;
             appointment.PatientId = patient.PatientId;
+            appointment.Status = (AppointmentStatus)appointmentDto.Status;
 
             _context.Entry(appointment).State = EntityState.Modified;
             await _context.SaveChangesAsync();

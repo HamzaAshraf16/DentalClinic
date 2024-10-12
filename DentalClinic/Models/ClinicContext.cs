@@ -15,6 +15,7 @@ namespace DentalClinic.Models
         public virtual DbSet<Patient> Patients { get; set; }
         public virtual DbSet<PatientHistory> PatientsHistory { get; set; }
         public virtual DbSet<PhoneNumber> PhoneNumbers { get; set; }
+        public virtual DbSet<outgoings> outgoings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -116,6 +117,37 @@ namespace DentalClinic.Models
                     .HasDefaultValue(false)
                     .HasColumnName("Heart_Diseases");
             });
+            modelBuilder.Entity<Doctor_Work_Branch>(entity =>
+            {
+                entity.Property(p => p.IsWork)
+                    .HasDefaultValue(true);
+
+                entity.Property(p => p.StartTime)
+                    .HasDefaultValue(new TimeSpan(13, 0, 0));
+
+                entity.Property(p => p.EndTime)
+                    .HasDefaultValue(new TimeSpan(1, 0, 0));
+            });
+
+            modelBuilder.Entity<PhoneNumber>(entity =>
+            {
+                entity.HasKey(p => p.Id);
+
+                entity.Property(p => p.Phonenumber)
+                    .IsRequired()
+                    .HasColumnType("nchar(11)");
+
+                entity.HasIndex(p => p.Phonenumber)
+                    .IsUnique();
+            });
+
+            modelBuilder.Entity<Patient>()
+            .HasOne(p => p.PatientHistory)
+            .WithOne(ph => ph.Patient)
+            .HasForeignKey<Patient>(p => p.PatientHistoryId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+            base.OnModelCreating(modelBuilder);
         }
     }
 }

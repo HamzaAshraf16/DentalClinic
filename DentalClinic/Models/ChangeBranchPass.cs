@@ -1,4 +1,10 @@
+<<<<<<< HEAD
 ﻿namespace DentalClinic.Models
+=======
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace DentalClinic.Models
+>>>>>>> 3d4f2c73446664909d3399c98c7db24e198350f8
 {
     public class ChangeBranchPass
     {

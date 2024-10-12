@@ -39,10 +39,10 @@ namespace DentalClinic.Controllers
         }
 
 
-        [HttpGet("{id:int}")]
-        public async Task<ActionResult> GetDoctorWorkBranch(int id)
+        [HttpGet("{id:int},{branchid:int}")]
+        public async Task<ActionResult> GetDoctorWorkBranch(int id,int branchid)
         {
-            if (id == null) 
+            if (id == null)
             {
                 return BadRequest(new { message = "the id is required" });
             }
@@ -51,7 +51,7 @@ namespace DentalClinic.Controllers
                 var doctorWorkBranch = await _context.DoctorWorkBranchs
                .Include(dw => dw.Doctor)
                .Include(dw => dw.Branch)
-               .Where(dw => dw.DoctorWorkBranchId == id)
+               .Where(dw => dw.DoctorID == id && dw.BranchID == branchid)
                .Select(dw => new BranchInfoandDoctor
                {
                    DoctorWorkBranchId = dw.DoctorWorkBranchId,
@@ -71,7 +71,7 @@ namespace DentalClinic.Controllers
 
                 return Ok(doctorWorkBranch);
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 return StatusCode(500, new { message = "An error occurred while retrieving data.", error = ex.Message });
 

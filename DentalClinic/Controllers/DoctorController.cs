@@ -27,6 +27,7 @@ public class DoctorController : ControllerBase
         {
             DoctorId = doctor.DoctorId,
             Name = doctor.Name,
+            UserId = doctor.UserId,
             PhoneNumber = doctor.PhoneNumber,
             WorkBranches = doctor.DoctorWorkBranches.Select(dwb => new DoctorWorkBranchDTO
             {
