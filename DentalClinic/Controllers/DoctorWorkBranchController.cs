@@ -80,45 +80,7 @@ namespace DentalClinic.Controllers
         }
 
         
-        [HttpGet("{doctorname:alpha},{day:alpha}")]
-        public async Task<ActionResult> GetDoctorWorkBranch(string doctorname, string day)
-        {
-            if (doctorname == null || day == null)
-            {
-                return BadRequest(new { message = "the id is required" });
-            }
-            try
-            {
-                var doctorWorkBranch = await _context.DoctorWorkBranchs
-               .Include(dw => dw.Doctor)
-               .Include(dw => dw.Branch)
-               .Where(dw => dw.Doctor.Name == doctorname && dw.Day == day)
-               .Select(dw => new BranchInfoandDoctor
-               {
-                   DoctorWorkBranchId = dw.DoctorWorkBranchId,
-                   Day = dw.Day,
-                   IsWork = dw.IsWork,
-                   StartTime = dw.StartTime,
-                   EndTime = dw.EndTime,
-                   BranchName = dw.Branch.Name,
-                   DoctorName = dw.Doctor.Name,
-               })
-               .FirstOrDefaultAsync();
-
-                if (doctorWorkBranch == null)
-                {
-                    return NotFound();
-                }
-
-                return Ok(doctorWorkBranch);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "An error occurred while retrieving data.", error = ex.Message });
-
-            }
-
-        }
+ 
 
         [HttpPut("{id:int}")]
         public async Task<IActionResult> UpdateDoctorWorkBranch(int id, BranchInfoandDoctor dto)
@@ -199,6 +161,8 @@ namespace DentalClinic.Controllers
             }
 
         }
+
+
 
         [HttpGet("{doctorname:alpha},{day:alpha}")]
         public async Task<ActionResult> GetDoctorWorkBranch(string doctorname, string day)

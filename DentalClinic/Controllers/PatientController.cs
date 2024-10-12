@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using DentalClinic.Models;
 using DentalClinic.DTO;
 using Microsoft.CodeAnalysis.Scripting;
+using System.Security.Claims;
 
 namespace DentalClinic.Controllers
 {
@@ -32,6 +33,7 @@ namespace DentalClinic.Controllers
                     PhoneNumber = p.PhoneNumber,
                     Address = p.Address,
                     Age=p.Age,
+                    UserId = p.UserId,
                     Hypertension = p.PatientHistory.Hypertension,
                     Diabetes = p.PatientHistory.Diabetes,
                     StomachAche =  p.PatientHistory.StomachAche,
@@ -231,5 +233,115 @@ namespace DentalClinic.Controllers
             return NoContent(); 
         }
 
+
+
+
+
+
+
+
+        [HttpPost("AddPatientWithHistory")]
+        public async Task<IActionResult> AddPatientWithHistory([FromBody] PatientDto newPatientDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            // Create the PatientHistory object from the DTO
+            var patientHistory = new PatientHistory
+            {
+                Hypertension = newPatientDto.Hypertension,
+                Diabetes = newPatientDto.Diabetes,
+                StomachAche = newPatientDto.StomachAche,
+                PeriodontalDisease = newPatientDto.PeriodontalDisease,
+                IsPregnant = newPatientDto.IsPregnant,
+                IsBreastfeeding = newPatientDto.IsBreastfeeding,
+                IsSmoking = newPatientDto.IsSmoking,
+                KidneyDiseases = newPatientDto.KidneyDiseases,
+                HeartDiseases = newPatientDto.HeartDiseases
+            };
+
+            // Create the Patient object and associate the history
+            var patient = new Patient
+            {
+                Name = newPatientDto.Name,
+                Gender = newPatientDto.Gender,
+                PhoneNumber = newPatientDto.PhoneNumber,
+                Address = newPatientDto.Address,
+                Age = newPatientDto.Age,
+                UserId = newPatientDto.UserId, // Assuming you want to store the UserId as well
+                PatientHistory = patientHistory // Link the history to the patient
+            };
+
+            // Save both the patient and the history in a single transaction
+            _context.Patients.Add(patient);
+            await _context.SaveChangesAsync();
+
+            // Create a PatientDto to return
+            var patientDto = new PatientDto
+            {
+                PatientId = patient.PatientId,
+                Name = patient.Name,
+                Gender = patient.Gender,
+                PhoneNumber = patient.PhoneNumber,
+                Address = patient.Address,
+                Age = patient.Age,
+                UserId = patient.UserId,
+                Hypertension = patientHistory.Hypertension,
+                Diabetes = patientHistory.Diabetes,
+                StomachAche = patientHistory.StomachAche,
+                PeriodontalDisease = patientHistory.PeriodontalDisease,
+                IsPregnant = patientHistory.IsPregnant,
+                IsBreastfeeding = patientHistory.IsBreastfeeding,
+                IsSmoking = patientHistory.IsSmoking,
+                KidneyDiseases = patientHistory.KidneyDiseases,
+                HeartDiseases = patientHistory.HeartDiseases
+            };
+
+            return CreatedAtAction(nameof(GetPatientById), new { id = patient.PatientId }, patientDto);
+        }
+
+
+
+
+
+
+        [HttpGet("GetLoggedInPatientProfile")]
+        public async Task<ActionResult<PatientDto>> GetLoggedInPatientProfile()
+        {
+            var userId = User.FindFirst("nameidentifier")?.Value;
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+            var patient = await _context.Patients
+                .Include(p => p.PatientHistory)
+                .Where(p => p.UserId == userId)
+                .Select(p => new PatientDto
+                {
+                    PatientId = p.PatientId,
+                    Name = p.Name,
+                    Gender = p.Gender,
+                    PhoneNumber = p.PhoneNumber,
+                    Address = p.Address,
+                    Age = p.Age,
+                    Hypertension = p.PatientHistory.Hypertension,
+                    Diabetes = p.PatientHistory.Diabetes,
+                    StomachAche = p.PatientHistory.StomachAche,
+                    PeriodontalDisease = p.PatientHistory.PeriodontalDisease,
+                    IsPregnant = p.PatientHistory.IsPregnant,
+                    IsBreastfeeding = p.PatientHistory.IsBreastfeeding,
+                    IsSmoking = p.PatientHistory.IsSmoking,
+                    KidneyDiseases = p.PatientHistory.KidneyDiseases,
+                    HeartDiseases = p.PatientHistory.HeartDiseases
+                })
+                .FirstOrDefaultAsync();
+            if (patient == null)
+            {
+                return NotFound();
+            }
+            return Ok(patient);
+        }
     }
 }

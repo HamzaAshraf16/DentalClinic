@@ -13,7 +13,6 @@ using System.Collections.Concurrent;
 using Microsoft.EntityFrameworkCore;
 using Org.BouncyCastle.Crypto.Generators;
 using DentalClinic.Models;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 
 namespace DentalClinic.Controllers
 {
@@ -68,7 +67,6 @@ namespace DentalClinic.Controllers
                             UserId = user.Id,
                             Name = model.Name,
                             PhoneNumber = model.PhoneNumber,
-                            Email=model.Email
                         };
                         await context.Doctors.AddAsync(doctor);
                         await context.SaveChangesAsync();
@@ -335,11 +333,18 @@ namespace DentalClinic.Controllers
                 return BadRequest(ModelState);
             }
 
-            var user = await userManager.GetUserAsync(User);
+            var userId = User?.FindFirst("nameidentifier")?.Value;
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized(new { Error = "User is not authenticated." });
+            }
+
+            var user = await userManager.FindByIdAsync(userId);
             if (user == null)
             {
                 return NotFound(new { Error = "User not found." });
             }
+
 
             if (!await userManager.CheckPasswordAsync(user, model.CurrentPassword))
             {
@@ -370,7 +375,7 @@ namespace DentalClinic.Controllers
 
 
         [Authorize]
-        [HttpPut("update")]
+        [HttpPut("updateUser")]
         public async Task<IActionResult> UpdateUser(UpdateUserModel model)
         {
             if (!ModelState.IsValid)
@@ -561,8 +566,8 @@ namespace DentalClinic.Controllers
             {
                 new Claim(JwtRegisteredClaimNames.Name, user.UserName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.NameIdentifier, user.Id),
-                new Claim(ClaimTypes.Role, role)
+                new Claim("nameidentifier", user.Id),
+                new Claim("role", role)
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Key"]));
@@ -585,13 +590,13 @@ namespace DentalClinic.Controllers
             {
                 new Claim(JwtRegisteredClaimNames.Name, user.UserName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.NameIdentifier, user.Id)
+                new Claim("nameidentifier", user.Id)
             };
 
             var roles = await userManager.GetRolesAsync(user);
             foreach (var role in roles)
             {
-                userClaims.Add(new Claim(ClaimTypes.Role, role));
+                userClaims.Add(new Claim("role", role));
             }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Key"]));
@@ -617,5 +622,49 @@ namespace DentalClinic.Controllers
             return new string(Enumerable.Repeat(chars, length)
               .Select(s => s[random.Next(s.Length)]).ToArray());
         }
+
+
+
+        [HttpPost("change-Branch-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangeBranchPass request)
+        {
+
+            if (request.NewPassword != request.ConfirmPassword)
+            {
+                return BadRequest("كلمات السر لا تتطابق.");
+            }
+            var userId = User.FindFirstValue("nameidentifier");
+            var userRole = await userManager.GetRolesAsync(await userManager.FindByIdAsync(userId));
+
+
+            if (!userRole.Contains("Admin"))
+            {
+                return Forbid("ليس لديك الصلاحيات لتغيير كلمة السر.");
+            }
+
+
+
+            var user = await userManager.FindByEmailAsync(request.Email);
+            if (user == null)
+            {
+                return NotFound("المستخدم غير موجود.");
+            }
+
+
+            var result = await userManager.RemovePasswordAsync(user);
+            if (result.Succeeded)
+            {
+                result = await userManager.AddPasswordAsync(user, request.NewPassword);
+                if (result.Succeeded)
+                {
+                    return Ok(new { message = "تم تغيير كلمة السر بنجاح." });
+                }
+            }
+
+            return BadRequest("حدث خطأ أثناء تغيير كلمة السر.");
+        }
     }
+
+
+   
 }

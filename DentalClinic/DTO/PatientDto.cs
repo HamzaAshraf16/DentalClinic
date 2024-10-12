@@ -8,6 +8,7 @@
         public string PhoneNumber { get; set; }
         public string Address { get; set; }
         public int? Age { get; set; }
+        public string? UserId { get; set; }
         public bool Hypertension { get; set; }
         public bool Diabetes { get; set; }
         public bool StomachAche { get; set; }

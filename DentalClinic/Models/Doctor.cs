@@ -15,12 +15,7 @@ namespace DentalClinic.Models
         [StringLength(50)]
         public string Name { get; set; }
 
-        [Required]
-        [EmailAddress]
-        [StringLength(100)]
-        public string Email { get; set; }
-
-
+       
         private string _phoneNumber;
 
         [Required(ErrorMessage = "من فضلك ادخل رقم الهاتف")]

@@ -77,6 +77,7 @@ namespace DentalClinic
                 app.UseSwaggerUI();
             }
 
+
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseCors("AllowSpecificOrigin");
