@@ -79,7 +79,7 @@ namespace DentalClinic.Controllers
 
         }
 
-
+        
         [HttpGet("{doctorname:alpha},{day:alpha}")]
         public async Task<ActionResult> GetDoctorWorkBranch(string doctorname, string day)
         {

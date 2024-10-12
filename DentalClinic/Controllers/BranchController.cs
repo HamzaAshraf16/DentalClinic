@@ -26,7 +26,8 @@ namespace DentalClinic.Controllers
             {
                 BranchId = b.BranchId,
                 BranchName = b.Name,
-                BranchLocation = b.Location
+                BranchLocation = b.Location,
+                UserId = b.UserId
             }).ToList();
 
             return branchDtos;

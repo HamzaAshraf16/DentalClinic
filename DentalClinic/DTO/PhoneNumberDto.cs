@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
+
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DentalClinic.DTO
@@ -22,4 +23,3 @@ namespace DentalClinic.DTO
         public string BranchName { get; set; }
     }
 }
-

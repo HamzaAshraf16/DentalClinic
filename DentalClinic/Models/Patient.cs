@@ -39,6 +39,11 @@ namespace DentalClinic.Models
         [Required]
         [StringLength(150)]
         public string Address { get; set; }
+
+        [Required]
+        [Range(0, 100)] 
+        public int? Age { get; set; }
+        
         [ForeignKey("PatientHistory")]
         public int? PatientHistoryId { get; set; }
         public virtual PatientHistory PatientHistory { get; set; }
