@@ -88,10 +88,11 @@ namespace DentalClinic.Models
             }
         }
 
-        [Required]
-        [Column(TypeName = "int")]
-        public AppointmentStatus Status { get; set; } = AppointmentStatus.Upcoming;
-
+        
+    [Required]
+    [Column(TypeName = "int")]
+    public AppointmentStatus Status { get; set; } = AppointmentStatus.Upcoming;
+        
         [ForeignKey("Doctor")]
         public int DoctorId { get; set; }
         public virtual Doctor Doctor { get; set; }

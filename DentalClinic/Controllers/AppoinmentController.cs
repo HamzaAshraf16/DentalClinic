@@ -112,54 +112,54 @@ namespace DentalClinic.Controllers
 
 
         [HttpPost]
-        public async Task<ActionResult<AppointmentDto>> ADD(AppointmentDto appointmentDto)
+    public async Task<ActionResult<AppointmentDto>> ADD(AppointmentDto appointmentDto)
+    {
+
+        var doctor = await _context.Doctors.FirstOrDefaultAsync(d => d.Name == appointmentDto.DoctorName);
+        if (doctor == null)
         {
-
-            var doctor = await _context.Doctors.FirstOrDefaultAsync(d => d.Name == appointmentDto.DoctorName);
-            if (doctor == null)
-            {
-                return BadRequest("Doctor not found");
-            }
-
-            var patient = await _context.Patients.FirstOrDefaultAsync(p => p.PatientId == appointmentDto.PatientId);
-            if (patient == null)
-            {
-                return BadRequest("Patient not found");
-            }
-            if (!TimeSpan.TryParse(appointmentDto.Time, out var time))
-            {
-                return BadRequest("Invalid time format");
-            }
-
-            var appointment = new Appointment
-            {
-                Cost = appointmentDto.Cost,
-                Time = time,
-                Date = appointmentDto.Date,
-                Reports = appointmentDto.Reports,
-                Type = appointmentDto.Type,
-                Status = (AppointmentStatus)appointmentDto.Status,
-                DoctorId = doctor.DoctorId,
-                PatientId = patient.PatientId,
-                
-            };
-
-            _context.Appointments.Add(appointment);
-            await _context.SaveChangesAsync();
-            var resultDto = new AppointmentDto
-            {
-                AppointmentId = appointment.AppointmentId,
-                Cost = appointment.Cost,
-                Time = appointment.Time.ToString(), 
-                Date = appointment.Date,
-                Reports = appointment.Reports,
-                Type = appointment.Type,
-                DoctorName = doctor.Name,  
-                PatientName = patient.Name 
-            };
-
-            return CreatedAtAction("GetAppointment", new { id = appointment.AppointmentId }, resultDto);
+            return BadRequest("Doctor not found");
         }
+
+        var patient = await _context.Patients.FirstOrDefaultAsync(p => p.PatientId == appointmentDto.PatientId);
+        if (patient == null)
+        {
+            return BadRequest("Patient not found");
+        }
+        if (!TimeSpan.TryParse(appointmentDto.Time, out var time))
+        {
+            return BadRequest("Invalid time format");
+        }
+
+        var appointment = new Appointment
+        {
+            Cost = appointmentDto.Cost,
+            Time = time,
+            Date = appointmentDto.Date,
+            Reports = appointmentDto.Reports,
+            Type = appointmentDto.Type,
+            Status = (AppointmentStatus)appointmentDto.Status,
+            DoctorId = doctor.DoctorId,
+            PatientId = patient.PatientId,
+        
+        };
+
+        _context.Appointments.Add(appointment);
+        await _context.SaveChangesAsync();
+        var resultDto = new AppointmentDto
+        {
+            AppointmentId = appointment.AppointmentId,
+            Cost = appointment.Cost,
+            Time = appointment.Time.ToString(), 
+            Date = appointment.Date,
+            Reports = appointment.Reports,
+            Type = appointment.Type,
+            DoctorName = doctor.Name,  
+            PatientName = patient.Name 
+        };
+
+        return CreatedAtAction("GetAppointment", new { id = appointment.AppointmentId }, resultDto);
+    }
 
 
         [HttpPut("{id}")]
