@@ -559,6 +559,8 @@ namespace DentalClinic.Controllers
                 return Unauthorized("Invalid token.");
             }
         }
+
+
         [HttpPost("change-Branch-password")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangeBranchPass request)
         {
@@ -629,12 +631,8 @@ namespace DentalClinic.Controllers
             {
                 new Claim(JwtRegisteredClaimNames.Name, user.UserName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-<<<<<<< HEAD
                 new Claim("nameidentifier", user.Id)
             };
-=======
-                new Claim("nameidentifier", user.Id)};
->>>>>>> 3d4f2c73446664909d3399c98c7db24e198350f8
 
             var roles = await userManager.GetRolesAsync(user);
             foreach (var role in roles)
@@ -668,44 +666,7 @@ namespace DentalClinic.Controllers
 
 
 
-        [HttpPost("change-Branch-password")]
-        public async Task<IActionResult> ChangePassword([FromBody] ChangeBranchPass request)
-        {
-
-            if (request.NewPassword != request.ConfirmPassword)
-            {
-                return BadRequest("كلمات السر لا تتطابق.");
-            }
-            var userId = User.FindFirstValue("nameidentifier");
-            var userRole = await userManager.GetRolesAsync(await userManager.FindByIdAsync(userId));
-
-
-            if (!userRole.Contains("Admin"))
-            {
-                return Forbid("ليس لديك الصلاحيات لتغيير كلمة السر.");
-            }
-
-
-
-            var user = await userManager.FindByEmailAsync(request.Email);
-            if (user == null)
-            {
-                return NotFound("المستخدم غير موجود.");
-            }
-
-
-            var result = await userManager.RemovePasswordAsync(user);
-            if (result.Succeeded)
-            {
-                result = await userManager.AddPasswordAsync(user, request.NewPassword);
-                if (result.Succeeded)
-                {
-                    return Ok(new { message = "تم تغيير كلمة السر بنجاح." });
-                }
-            }
-
-            return BadRequest("حدث خطأ أثناء تغيير كلمة السر.");
-        }
+      
     }
 
 

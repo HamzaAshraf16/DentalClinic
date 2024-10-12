@@ -18,7 +18,6 @@
         public bool IsSmoking { get; set; }
         public bool KidneyDiseases { get; set; }
         public bool HeartDiseases { get; set; }
-        public string? UserId { get; set; }
 
     }
 }
