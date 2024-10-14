@@ -33,6 +33,8 @@ namespace DentalClinic.Controllers
                 WorkIn.StartTime = item.StartTime;
                 WorkIn.EndTime = item.EndTime;
                 WorkIn.IsWork = item.IsWork;
+                WorkIn.branshId = item.BranchID;
+                WorkIn.doctorId= item.DoctorID;
                 branchDoctors.Add(WorkIn);
             }
             return Ok(branchDoctors);
