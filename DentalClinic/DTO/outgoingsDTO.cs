@@ -7,5 +7,8 @@
         public int Cost { get; set; }
         public int BranchID { get; set; }
         public int DoctorId { get; set; }
+        public string BranchName { get; set; }
+        public string DoctorName { get; set; }
+        public int outgoingsId { get;set; }
     }
 }
