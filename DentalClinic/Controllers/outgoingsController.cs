@@ -20,11 +20,26 @@ namespace DentalClinic.Controllers
             _context = context;
         }
 
-        // GET: api/outgoings
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<outgoings>>> GetOutgoings()
+        public async Task<ActionResult<IEnumerable<outgoingsDTO>>> GetOutgoings()
         {
-            return await _context.outgoings.ToListAsync();
+            var appointments = await _context.outgoings
+                .Include(a => a.Doctor)
+                .Include(a => a.Branch)
+                .Select(a => new outgoingsDTO
+                {
+                    outgoingsId = a.outgoingsId,
+                    Cost = a.Cost,
+                    Date = a.Date,
+                    NameOfOutgoings = a.NameOfOutgoings,
+                    BranchName = a.Branch.Name,
+                    DoctorName = a.Doctor.Name,
+                    BranchID=a.Branch.BranchId,
+                    DoctorId=a.Doctor.DoctorId
+                })
+                .ToListAsync();
+
+            return Ok(appointments);
         }
 
         // GET: api/outgoings/5
@@ -59,7 +74,7 @@ namespace DentalClinic.Controllers
             await _context.SaveChangesAsync();
 
             // Return the created outgoing with the new ID
-            return CreatedAtAction(nameof(GetOutgoing), new { id = outgoing.outgoingsId }, outgoing);
+            return CreatedAtAction(nameof(GetOutgoing), new { id = outgoing.outgoingsId }, outgoingDto);
         }
 
         // PUT: api/outgoings/5
@@ -107,6 +122,7 @@ namespace DentalClinic.Controllers
 
             return NoContent();
         }
+
         private bool OutgoingExists(int id)
         {
             return _context.outgoings.Any(e => e.outgoingsId == id);

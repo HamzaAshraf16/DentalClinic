@@ -2,6 +2,7 @@
 using DentalClinic.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace DentalClinic.Controllers
@@ -15,6 +16,7 @@ namespace DentalClinic.Controllers
         public AppoinmentController(ClinicContext context)
         {
             _context = context;
+
         }
 
 
@@ -173,16 +175,36 @@ namespace DentalClinic.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var appointment = await _context.Appointments.FindAsync(id);
-            if (appointment == null)
+            try
             {
-                return NotFound();
+                var appointment = await _context.Appointments.FindAsync(id);
+                if (appointment == null)
+                {
+                    return NotFound();
+                }
+                var patientId = appointment.PatientId;
+                var appointmentTime = appointment.Time;
+                var appointmentDate = appointment.Date.ToString("yyyy-MM-dd");
+                _context.Appointments.Remove(appointment);
+                await _context.SaveChangesAsync();
+
+                var notification = new Notification
+                {
+                    PatientId = patientId,
+                    Message = $"تم إلغاء الحجز المسجل بتاريخ {appointmentDate} , وبمعاد {appointmentTime}  قم بالحجز مره اخري",
+                    IsRead = false,
+                    CreatedDate = DateTime.Now
+                };
+                _context.Notifications.Add(notification);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
+            }
+            catch (Exception ex) {
+                return StatusCode(500, "حدث خطأ أثناء معالجة الطلب.");
+
             }
 
-            _context.Appointments.Remove(appointment);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
         }
 
 

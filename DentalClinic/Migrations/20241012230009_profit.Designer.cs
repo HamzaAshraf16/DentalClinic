@@ -4,6 +4,7 @@ using DentalClinic.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DentalClinic.Migrations
 {
     [DbContext(typeof(ClinicContext))]
-    partial class ClinicContextModelSnapshot : ModelSnapshot
+    [Migration("20241012230009_profit")]
+    partial class profit
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -228,34 +231,6 @@ namespace DentalClinic.Migrations
                     b.HasIndex("DoctorID");
 
                     b.ToTable("DoctorWorkBranchs");
-                });
-
-            modelBuilder.Entity("DentalClinic.Models.Notification", b =>
-                {
-                    b.Property<int>("NotificationId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NotificationId"));
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsRead")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("PatientId")
-                        .HasColumnType("int");
-
-                    b.HasKey("NotificationId");
-
-                    b.HasIndex("PatientId");
-
-                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("DentalClinic.Models.Patient", b =>
@@ -621,17 +596,6 @@ namespace DentalClinic.Migrations
                     b.Navigation("Doctor");
                 });
 
-            modelBuilder.Entity("DentalClinic.Models.Notification", b =>
-                {
-                    b.HasOne("DentalClinic.Models.Patient", "Patient")
-                        .WithMany("Notifications")
-                        .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Patient");
-                });
-
             modelBuilder.Entity("DentalClinic.Models.Patient", b =>
                 {
                     b.HasOne("DentalClinic.Models.PatientHistory", "PatientHistory")
@@ -751,11 +715,6 @@ namespace DentalClinic.Migrations
                     b.Navigation("Appointments");
 
                     b.Navigation("DoctorWorkBranches");
-                });
-
-            modelBuilder.Entity("DentalClinic.Models.Patient", b =>
-                {
-                    b.Navigation("Notifications");
                 });
 
             modelBuilder.Entity("DentalClinic.Models.PatientHistory", b =>

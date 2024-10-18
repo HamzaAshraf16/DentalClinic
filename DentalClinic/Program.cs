@@ -1,4 +1,5 @@
 
+using DentalClinic.Hubs;
 using DentalClinic.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -13,6 +14,8 @@ namespace DentalClinic
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            builder.Services.AddSignalR();
 
             builder.Services.AddDbContext<ClinicContext>(options =>
             {
@@ -57,9 +60,12 @@ namespace DentalClinic
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowSpecificOrigin",
-                    builder => builder.WithOrigins("http://localhost:4200") 
+                    builder => builder.WithOrigins("http://localhost:4200")
                                       .AllowAnyHeader()
-                                      .AllowAnyMethod());
+                                      .AllowAnyMethod()
+                                      .AllowCredentials()
+                                      );
+                                      
             });
             // Add services to the container.
 
@@ -70,6 +76,9 @@ namespace DentalClinic
 
             var app = builder.Build();
 
+
+            app.MapHub<ChatHub>("/chatHub");
+
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -77,6 +86,7 @@ namespace DentalClinic
                 app.UseSwaggerUI();
             }
 
+            app.UseRouting(); // ÌÃ» √‰  ﬂÊ‰ Â–Â «·”ÿ— √Ê·«
 
             app.UseAuthentication();
             app.UseAuthorization();
@@ -84,6 +94,8 @@ namespace DentalClinic
             app.UseCors("MyCors");
 
             app.MapControllers();
+
+           
 
             app.Run();
         }

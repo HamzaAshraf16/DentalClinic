@@ -52,5 +52,7 @@ namespace DentalClinic.Models
         [ForeignKey("User")]
         public string? UserId { get; set; }
         public virtual ApplicationUser User { get; set; }
+
+        public virtual ICollection<Notification> Notifications { get; set; }
     }
 }
