@@ -59,7 +59,7 @@ namespace DentalClinic.Controllers
             await _context.SaveChangesAsync();
 
             // Return the created outgoing with the new ID
-            return CreatedAtAction(nameof(GetOutgoing), new { id = outgoing.outgoingsId }, outgoing);
+            return CreatedAtAction(nameof(GetOutgoing), new { id = outgoing.outgoingsId }, outgoingDto);
         }
 
         // PUT: api/outgoings/5
@@ -107,6 +107,7 @@ namespace DentalClinic.Controllers
 
             return NoContent();
         }
+
         private bool OutgoingExists(int id)
         {
             return _context.outgoings.Any(e => e.outgoingsId == id);

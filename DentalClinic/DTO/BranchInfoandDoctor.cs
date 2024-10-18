@@ -11,11 +11,12 @@ namespace DentalClinic.DTO
         [Column(TypeName = "nvarchar")]
         [StringLength(50)]
         public string? DoctorName { get; set; }
-
+        public int doctorId { get; set; }
 
         [Column(TypeName = "nvarchar")]
         [StringLength(30)]
         public string? BranchName { get; set; }
+        public int branshId { get; set; }
 
         [RegularExpression(@"^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)$",
         ErrorMessage = "يجب ان يكون يوم عمل ")]

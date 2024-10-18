@@ -17,6 +17,7 @@ namespace DentalClinic.Models
         public virtual DbSet<PhoneNumber> PhoneNumbers { get; set; }
         public virtual DbSet<outgoings> outgoings { get; set; }
 
+        public virtual DbSet<Notification> Notifications { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);  // Call base for Identity configuration

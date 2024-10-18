@@ -13,7 +13,6 @@ using System.Collections.Concurrent;
 using Microsoft.EntityFrameworkCore;
 using Org.BouncyCastle.Crypto.Generators;
 using DentalClinic.Models;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 
 namespace DentalClinic.Controllers
 {
@@ -68,7 +67,6 @@ namespace DentalClinic.Controllers
                             UserId = user.Id,
                             Name = model.Name,
                             PhoneNumber = model.PhoneNumber,
-                            Email=model.Email
                         };
                         await context.Doctors.AddAsync(doctor);
                         await context.SaveChangesAsync();
@@ -394,11 +392,18 @@ namespace DentalClinic.Controllers
                 return BadRequest(ModelState);
             }
 
-            var user = await userManager.GetUserAsync(User);
+            var userId = User?.FindFirst("nameidentifier")?.Value;
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized(new { Error = "User is not authenticated." });
+            }
+
+            var user = await userManager.FindByIdAsync(userId);
             if (user == null)
             {
                 return NotFound(new { Error = "User not found." });
             }
+
 
             if (!await userManager.CheckPasswordAsync(user, model.CurrentPassword))
             {
@@ -429,7 +434,7 @@ namespace DentalClinic.Controllers
 
 
         [Authorize]
-        [HttpPut("update")]
+        [HttpPut("updateUser")]
         public async Task<IActionResult> UpdateUser(UpdateUserModel model)
         {
             if (!ModelState.IsValid)
@@ -613,6 +618,8 @@ namespace DentalClinic.Controllers
                 return Unauthorized("Invalid token.");
             }
         }
+
+
         [HttpPost("change-Branch-password")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangeBranchPass request)
         {
@@ -683,7 +690,8 @@ namespace DentalClinic.Controllers
             {
                 new Claim(JwtRegisteredClaimNames.Name, user.UserName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim("nameidentifier", user.Id)};
+                new Claim("nameidentifier", user.Id)
+            };
 
             var roles = await userManager.GetRolesAsync(user);
             foreach (var role in roles)
@@ -714,5 +722,12 @@ namespace DentalClinic.Controllers
             return new string(Enumerable.Repeat(chars, length)
               .Select(s => s[random.Next(s.Length)]).ToArray());
         }
+
+
+
+      
     }
+
+
+   
 }

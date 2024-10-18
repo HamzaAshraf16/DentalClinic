@@ -11,12 +11,7 @@ namespace DentalClinic.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<int>(
-                name: "Age",
-                table: "Patients",
-                type: "int",
-                nullable: false,
-                defaultValue: 0);
+            
 
             migrationBuilder.AddColumn<string>(
                 name: "Email",
@@ -26,17 +21,7 @@ namespace DentalClinic.Migrations
                 nullable: false,
                 defaultValue: "");
 
-            migrationBuilder.AddColumn<string>(
-                name: "UserId",
-                table: "Doctors",
-                type: "nvarchar(450)",
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "UserId",
-                table: "Branchs",
-                type: "nvarchar(450)",
-                nullable: true);
+          
 
             migrationBuilder.CreateTable(
                 name: "outgoings",
@@ -67,19 +52,9 @@ namespace DentalClinic.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateIndex(
-                name: "IX_Doctors_UserId",
-                table: "Doctors",
-                column: "UserId",
-                unique: true,
-                filter: "[UserId] IS NOT NULL");
+          
 
-            migrationBuilder.CreateIndex(
-                name: "IX_Branchs_UserId",
-                table: "Branchs",
-                column: "UserId",
-                unique: true,
-                filter: "[UserId] IS NOT NULL");
+            
 
             migrationBuilder.CreateIndex(
                 name: "IX_outgoings_BranchID",
@@ -91,21 +66,9 @@ namespace DentalClinic.Migrations
                 table: "outgoings",
                 column: "DoctorId");
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_Branchs_AspNetUsers_UserId",
-                table: "Branchs",
-                column: "UserId",
-                principalTable: "AspNetUsers",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Restrict);
+           
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_Doctors_AspNetUsers_UserId",
-                table: "Doctors",
-                column: "UserId",
-                principalTable: "AspNetUsers",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Restrict);
+    
         }
 
         /// <inheritdoc />
