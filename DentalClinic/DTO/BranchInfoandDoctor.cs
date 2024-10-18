@@ -17,7 +17,7 @@ namespace DentalClinic.DTO
         [StringLength(30)]
         public string? BranchName { get; set; }
 
-        [RegularExpression(@"^(الأثنين|الثلاثاء|الأربعاء|الخميس|الجمعة|السبت)$",
+        [RegularExpression(@"^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)$",
         ErrorMessage = "يجب ان يكون يوم عمل ")]
         public string? Day { get; set; }
         [DefaultValue(true)]

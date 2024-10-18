@@ -220,52 +220,111 @@ namespace DentalClinic.Controllers
             if (await userManager.FindByEmailAsync(model.Email) != null)
                 return BadRequest(new { Error = "Email is already registered!" });
 
-            if (await userManager.FindByNameAsync(model.Name) != null)
-                return BadRequest(new { Error = "Username is already registered!" });
-
             using (var transaction = await context.Database.BeginTransactionAsync())
             {
                 try
                 {
-                    var user = new ApplicationUser { UserName = model.Email, Email = model.Email, PhoneNumber = model.PhoneNumber };
+                    var existingPatient = await context.Patients
+                        .FirstOrDefaultAsync(p =>
+                            p.Name == model.Name &&
+                            p.PhoneNumber == model.PhoneNumber &&
+                            p.UserId == null);
+
+                    var user = new ApplicationUser
+                    {
+                        UserName = model.Email,
+                        Email = model.Email,
+                        PhoneNumber = model.PhoneNumber
+                    };
+
                     var result = await userManager.CreateAsync(user, model.Password);
+
                     if (result.Succeeded)
                     {
-                        var patientHistory = new PatientHistory
+                        if (existingPatient != null)
                         {
-                            Hypertension = model.Hypertension,
-                            Diabetes = model.Diabetes,
-                            StomachAche = model.StomachAche,
-                            PeriodontalDisease = model.PeriodontalDisease,
-                            IsPregnant = model.IsPregnant,
-                            IsBreastfeeding = model.IsBreastfeeding,
-                            IsSmoking = model.IsSmoking,
-                            KidneyDiseases = model.KidneyDiseases,
-                            HeartDiseases = model.HeartDiseases
-                        };
-                        await context.PatientsHistory.AddAsync(patientHistory);
-                        await context.SaveChangesAsync();
+                            existingPatient.UserId = user.Id;
+                            existingPatient.Address = model.Address; 
+                            existingPatient.Age = model.Age;
+                            context.Patients.Update(existingPatient);
 
-                        var patient = new Patient
+
+                            var patientHistory = await context.PatientsHistory
+                                .FirstOrDefaultAsync(ph => ph.PatientHistoryID == existingPatient.PatientHistoryId);
+
+                            if (patientHistory == null)
+                            {
+                                patientHistory = new PatientHistory
+                                {
+                                    Hypertension = model.Hypertension,
+                                    Diabetes = model.Diabetes,
+                                    StomachAche = model.StomachAche,
+                                    PeriodontalDisease = model.PeriodontalDisease,
+                                    IsPregnant = model.IsPregnant,
+                                    IsBreastfeeding = model.IsBreastfeeding,
+                                    IsSmoking = model.IsSmoking,
+                                    KidneyDiseases = model.KidneyDiseases,
+                                    HeartDiseases = model.HeartDiseases
+                                };
+                                await context.PatientsHistory.AddAsync(patientHistory);
+                                await context.SaveChangesAsync();
+                                existingPatient.PatientHistoryId = patientHistory.PatientHistoryID;
+                            }
+                            else
+                            {
+                                patientHistory.Hypertension = model.Hypertension;
+                                patientHistory.Diabetes = model.Diabetes;
+                                patientHistory.StomachAche = model.StomachAche;
+                                patientHistory.PeriodontalDisease = model.PeriodontalDisease;
+                                patientHistory.IsPregnant = model.IsPregnant;
+                                patientHistory.IsBreastfeeding = model.IsBreastfeeding;
+                                patientHistory.IsSmoking = model.IsSmoking;
+                                patientHistory.KidneyDiseases = model.KidneyDiseases;
+                                patientHistory.HeartDiseases = model.HeartDiseases;
+                                context.PatientsHistory.Update(patientHistory);
+                            }
+                        }
+                        else
                         {
-                            UserId = user.Id,
-                            Name = model.Name,
-                            Gender = model.Gender,
-                            PhoneNumber = model.PhoneNumber,
-                            Address = model.Address,
-                            Age=model.Age,
-                            PatientHistoryId = patientHistory.PatientHistoryID
-                            
-                        };
-                        await context.Patients.AddAsync(patient);
+
+                            var patientHistory = new PatientHistory
+                            {
+                                Hypertension = model.Hypertension,
+                                Diabetes = model.Diabetes,
+                                StomachAche = model.StomachAche,
+                                PeriodontalDisease = model.PeriodontalDisease,
+                                IsPregnant = model.IsPregnant,
+                                IsBreastfeeding = model.IsBreastfeeding,
+                                IsSmoking = model.IsSmoking,
+                                KidneyDiseases = model.KidneyDiseases,
+                                HeartDiseases = model.HeartDiseases
+                            };
+                            await context.PatientsHistory.AddAsync(patientHistory);
+                            await context.SaveChangesAsync();
+
+
+                            var newPatient = new Patient
+                            {
+                                UserId = user.Id,
+                                Name = model.Name,
+                                Gender = model.Gender,
+                                PhoneNumber = model.PhoneNumber,
+                                Address = model.Address,
+                                Age = model.Age,
+                                PatientHistoryId = patientHistory.PatientHistoryID
+                            };
+                            await context.Patients.AddAsync(newPatient);
+                        }
+
                         await context.SaveChangesAsync();
-
-
                         await userManager.AddToRoleAsync(user, "User");
+
                         JwtSecurityToken token = await GenerateJwtToken(user);
                         AuthenticatoinModel authModel = new AuthenticatoinModel
                         {
-                            Message = "User, patient record, and patient history created successfully",
+                            Message = existingPatient != null
+                                ? "Existing patient record linked successfully"
+                                : "User, patient record, and patient history created successfully",
                             IsAuthenticated = true,
                             Username = user.UserName,
                             Email = user.Email,
