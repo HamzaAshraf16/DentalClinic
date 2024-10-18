@@ -20,26 +20,11 @@ namespace DentalClinic.Controllers
             _context = context;
         }
 
+        // GET: api/outgoings
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<outgoingsDTO>>> GetOutgoings()
+        public async Task<ActionResult<IEnumerable<outgoings>>> GetOutgoings()
         {
-            var appointments = await _context.outgoings
-                .Include(a => a.Doctor)
-                .Include(a => a.Branch)
-                .Select(a => new outgoingsDTO
-                {
-                    outgoingsId = a.outgoingsId,
-                    Cost = a.Cost,
-                    Date = a.Date,
-                    NameOfOutgoings = a.NameOfOutgoings,
-                    BranchName = a.Branch.Name,
-                    DoctorName = a.Doctor.Name,
-                    BranchID=a.Branch.BranchId,
-                    DoctorId=a.Doctor.DoctorId
-                })
-                .ToListAsync();
-
-            return Ok(appointments);
+            return await _context.outgoings.ToListAsync();
         }
 
         // GET: api/outgoings/5
