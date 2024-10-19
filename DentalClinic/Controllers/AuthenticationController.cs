@@ -618,6 +618,40 @@ namespace DentalClinic.Controllers
                 return Unauthorized("Invalid token.");
             }
         }
+        [HttpPost("VerifyResetCode")]
+public async Task<IActionResult> VerifyResetCode(VerifyCodeModel model)
+{
+    if (!ModelState.IsValid)
+    {
+        return BadRequest(ModelState);
+    }
+
+    var user = await userManager.FindByEmailAsync(model.Email);
+    if (user == null)
+    {
+        return BadRequest(new { Error = "User not found." });
+    }
+
+    if (!ResetCodes.TryGetValue(model.Email, out var resetCodeEntry))
+    {
+        return BadRequest(new { Error = "Invalid reset code." });
+    }
+
+    if (model.Code != resetCodeEntry.Code)
+    {
+        return BadRequest(new { Error = "Invalid reset code." });
+    }
+
+    if ((DateTime.UtcNow - resetCodeEntry.CreatedAt).TotalHours > 1)
+    {
+        return BadRequest(new { Error = "Reset code has expired." });
+    }
+
+    ResetCodes.TryRemove(model.Email, out _);
+
+    return Ok(new { Message = "Code is valid." });
+}
+       
 [HttpGet("GetUserByEmail/{email}")]
 
 public async Task<IActionResult> GetUserByEmail(string email)
