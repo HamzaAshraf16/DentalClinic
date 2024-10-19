@@ -13,7 +13,6 @@ namespace DentalClinic.DTO
         public string? DoctorName { get; set; }
         public int doctorId { get; set; }
 
-        public int doctorId {  get; set; }
 
         [Column(TypeName = "nvarchar")]
         [StringLength(30)]

@@ -433,7 +433,7 @@ namespace DentalClinic.Controllers
             }
 
             // Generate a random 6-character code
-            var resetCode = GenerateRandomCode(8);
+            var resetCode = GenerateRandomCode(6);
             // Store the reset code temporarily with the current time
             ResetCodes[model.Email] = new ResetCodeEntry { Code = resetCode, CreatedAt = DateTime.UtcNow };
 

@@ -215,26 +215,26 @@ namespace DentalClinic.Controllers
 
         
         [HttpDelete("DeletePatient/{id}")]
-public async Task<IActionResult> DeletePatient(int id)
-{
+        public async Task<IActionResult> DeletePatient(int id)
+        {
     
-    var patient = await _context.Patients.FindAsync(id);
-    var patienthistory = await _context.PatientsHistory.FindAsync(patient.PatientHistoryId);
-    var user = await _context.Users.FindAsync(patient.UserId);
+            var patient = await _context.Patients.FindAsync(id);
+            var patienthistory = await _context.PatientsHistory.FindAsync(patient.PatientHistoryId);
+            var user = await _context.Users.FindAsync(patient.UserId);
 
-    if (patient == null || patienthistory == null || user == null)
-    {
-        return NotFound(new {message="The patient not Founded"});
-    }
+            if (patient == null || patienthistory == null || user == null)
+            {
+                 return NotFound(new {message="The patient not Founded"});
+            }
 
 
-    _context.Patients.Remove(patient);
-    _context.PatientsHistory.Remove(patienthistory);
-    _context.Users.Remove(user);
-    await _context.SaveChangesAsync(); 
+                _context.Patients.Remove(patient);
+                _context.PatientsHistory.Remove(patienthistory);
+                 _context.Users.Remove(user);
+                await _context.SaveChangesAsync(); 
 
-    return NoContent(); 
-}
+                 return NoContent(); 
+        }
 
 
 

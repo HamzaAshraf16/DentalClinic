@@ -10,7 +10,6 @@
         public string DoctorName { get; set; }
         public int DoctorId { get; set; }
         public int BranchID { get; set; }
-        public int DoctorId { get; set; }
     }
 
 }
