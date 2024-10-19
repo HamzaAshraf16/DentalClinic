@@ -618,7 +618,29 @@ namespace DentalClinic.Controllers
                 return Unauthorized("Invalid token.");
             }
         }
+[HttpGet("GetUserByEmail/{email}")]
 
+public async Task<IActionResult> GetUserByEmail(string email)
+{
+    var user = await userManager.FindByEmailAsync(email);
+
+    if (user == null)
+    {
+        return NotFound(new { message = "المستخدم غير موجود." });
+    }
+
+    var roles = await userManager.GetRolesAsync(user);
+
+    var userData = new
+    {
+        user.Id,
+        user.UserName,
+        user.Email,
+        Roles = roles
+    };
+
+    return Ok(userData);
+}
 
         [HttpPost("change-Branch-password")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangeBranchPass request)
