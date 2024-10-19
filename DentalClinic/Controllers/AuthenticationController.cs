@@ -676,44 +676,34 @@ public async Task<IActionResult> GetUserByEmail(string email)
     return Ok(userData);
 }
 
-        [HttpPost("change-Branch-password")]
-        public async Task<IActionResult> ChangePassword([FromBody] ChangeBranchPass request)
-        {
+         [HttpPost("change-Branch-password")]
+ public async Task<IActionResult> ChangePassword([FromBody] ChangeBranchPass request)
+ {
 
-            if (request.NewPassword != request.ConfirmPassword)
-            {
-                return BadRequest("كلمات السر لا تتطابق.");
-            }
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var userRole = await userManager.GetRolesAsync(await userManager.FindByIdAsync(userId));
+     if (request.NewPassword != request.ConfirmPassword)
+     {
+         return BadRequest("كلمات السر لا تتطابق.");
+     }
 
-
-            if (!userRole.Contains("Admin"))
-            {
-                return Forbid("ليس لديك الصلاحيات لتغيير كلمة السر.");
-            }
+     var user = await userManager.FindByEmailAsync(request.Email);
+     if (user == null)
+     {
+         return NotFound("المستخدم غير موجود.");
+     }
 
 
+     var result = await userManager.RemovePasswordAsync(user);
+     if (result.Succeeded)
+     {
+         result = await userManager.AddPasswordAsync(user, request.NewPassword);
+         if (result.Succeeded)
+         {
+             return Ok(new { message = "تم تغيير كلمة السر بنجاح." });
+         }
+     }
 
-            var user = await userManager.FindByEmailAsync(request.Email);
-            if (user == null)
-            {
-                return NotFound("المستخدم غير موجود.");
-            }
-
-
-            var result = await userManager.RemovePasswordAsync(user);
-            if (result.Succeeded)
-            {
-                result = await userManager.AddPasswordAsync(user, request.NewPassword);
-                if (result.Succeeded)
-                {
-                    return Ok(new { message = "تم تغيير كلمة السر بنجاح." });
-                }
-            }
-
-            return BadRequest("حدث خطأ أثناء تغيير كلمة السر.");
-        }
+     return BadRequest("حدث خطأ أثناء تغيير كلمة السر.");
+ }
 
 
         private async Task<JwtSecurityToken> GenerateJwtTokenDashBoard(ApplicationUser user, string role)
