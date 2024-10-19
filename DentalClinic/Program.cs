@@ -1,6 +1,7 @@
 
 using DentalClinic.Hubs;
 using DentalClinic.Models;
+using DentalClinic.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -73,7 +74,7 @@ namespace DentalClinic
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-
+            builder.Services.AddScoped<IPatientHistoryService, PatientHistoryService>();
             var app = builder.Build();
 
 
